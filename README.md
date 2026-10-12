@@ -1,13 +1,27 @@
-# CMSC128 Lab 0
+# Tara Larga!
 
-This repository is for CMSC 128 Laboratory Activity 0 on Git and GitHub Organization Basics. 
+## Product Overview
 
+Tara Larga! is a free mobile app that works like a local guide for Iloilo's public transportation. Open it, type where you want to go, whether a school, mall, dorm, landmark, or address, and it shows you how to get there by jeepney, bus, tricycle, or e-bus. Each suggested route lays out the trip step by step: where to walk to board, which vehicle to take, where to get off, and where to transfer. Every route comes with its estimated fare (including student discounts), travel time, and number of rides, and follows the paths public vehicles actually travel, so a destination that looks close on the map but sits on a long loop won't catch you by surprise.
+
+You can compare options side by side, such as a direct jeepney versus a bus plus tricycle, build your own trip around specific terminals or transit hubs, and save places or routes you use often. The app also shows terminal hours and cut-off times, and an optional AI assistant can answer quick questions like the cheapest or fastest way to get somewhere. Built for UPV students and newcomers who don't know Iloilo's transit system yet, Tara Larga! aims to make commuting feel clear and predictable without constantly asking drivers or fellow passengers. It runs on Android and iOS, uses LTFRB route and fare data, and requires an internet connection.
+  
 ## Group Members
 
 - Trisha Mae Hechenagocia
 - Rose Antonette Kaindoy
 - Justin Lauricio
 - Aleighia Keith Reyes
+
+### Team Links
+
+- [Product Masterdocs](https://docs.google.com/document/d/1b1Q48i5sW6raBXJBgWZpJZrhglxlUx9Zuq0AzdSKbsY/edit?usp=sharing)
+- [Product Backlog](https://docs.google.com/spreadsheets/d/1V0eJSBsAhas5Tjm4Jt6IWsmiH_7nkzIWgcaA8crP2P4/edit?usp=sharing)
+- [Activities Docs](https://docs.google.com/document/d/1b1Q48i5sW6raBXJBgWZpJZrhglxlUx9Zuq0AzdSKbsY/edit?usp=sharing)
+- [Figma Team](https://www.figma.com/team_invite/redeem/ARYgq86Kxm83LUNnL3y254?t=LQiyRihkWFiBhh1Z-21)
+- [Kanban/Scrum Board](https://gcache.atlassian.net/jira/software/projects/TL/boards/2?filter=&groupBy=none&atlOrigin=eyJpIjoiYjhjODAxY2EzOGM1NGYzZDk0MWNjNzM2ZmZlODI3NTUiLCJwIjoiaiJ9)
+- [Sitemap](https://canva.link/3w6zd5vig8ej07z)
+- [GitHub Repo](https://github.com/cmsc128-gitgitout/CMSC128_Lab_0)
 
 ## Project setup
 
@@ -42,7 +56,7 @@ flutter doctor --android-licenses
 Clone the repository and change into its directory:
 
 ```sh
-git clone https://github.com/cmsc128-jart/CMSC128_Lab_0.git
+git clone https://github.com/cmsc128-gitgitout/CMSC128_Lab_0.git
 cd CMSC128_Lab_0
 ```
 
