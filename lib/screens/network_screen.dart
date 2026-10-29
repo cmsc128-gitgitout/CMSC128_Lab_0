@@ -78,6 +78,11 @@ class _NetworkScreenState extends State<NetworkScreen> {
   Widget _buildRoutes() {
     return ListView(
       padding: const EdgeInsets.only(bottom: 16),
+      // irefactor ni kay as of now, bad practice pa ni
+      // kay naggamit kita di counters and gingamit lang siya 
+      // para maindicate ang number kang widget nga idisplay
+      // TODO: if naimplement na ang backend let's use ang data 
+      // for state changes and irender lang kang ui if may any changes
       children: [
         ..._section('CITY ROUTES', count: 2),
         ..._section('OUT OF TOWN ROUTES', count: 2),
@@ -88,6 +93,8 @@ class _NetworkScreenState extends State<NetworkScreen> {
   Widget _buildTerminals() {
     return ListView(
       padding: const EdgeInsets.only(bottom: 16),
+      // same with this one gingamit lang ni for widget display
+      // ichange ta ni if may ara na data
       children: [
         _sectionTitle('MAJOR TERMINALS'),
         for (int i = 0; i < 3; i++)

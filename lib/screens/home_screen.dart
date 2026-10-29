@@ -4,7 +4,6 @@ import 'explore_screen.dart';
 import 'network_screen.dart';
 
 /// Main screen: hosts the bottom navigation and the tab screens.
-/// Saved and Profile tabs will be added later.
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
 
