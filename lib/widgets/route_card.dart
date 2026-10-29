@@ -1,12 +1,20 @@
 import 'package:flutter/material.dart';
 
-import '../models/transit_route.dart';
-
-/// Expandable card for one route. Map button and details are placeholders.
+/// Expandable card for one route. All texts are empty until data is wired in.
 class RouteCard extends StatefulWidget {
-  const RouteCard({super.key, required this.route, this.onViewMap});
+  const RouteCard({
+    super.key,
+    this.badge = '',
+    this.title = '',
+    this.via = '',
+    this.code = '',
+    this.onViewMap,
+  });
 
-  final TransitRoute route;
+  final String badge; // vehicle label, e.g. JEEP / E-BUS
+  final String title; // e.g. route name
+  final String via;
+  final String code;
   final VoidCallback? onViewMap;
 
   @override
@@ -18,8 +26,6 @@ class _RouteCardState extends State<RouteCard> {
 
   @override
   Widget build(BuildContext context) {
-    final route = widget.route;
-
     return Container(
       decoration: BoxDecoration(
         color: Colors.white,
@@ -40,7 +46,7 @@ class _RouteCardState extends State<RouteCard> {
                   borderRadius: BorderRadius.circular(8),
                 ),
                 child: Text(
-                  route.vehicle.label,
+                  widget.badge,
                   style: const TextStyle(
                     fontSize: 12,
                     fontWeight: FontWeight.w700,
@@ -53,18 +59,18 @@ class _RouteCardState extends State<RouteCard> {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      route.name,
+                      widget.title,
                       style: const TextStyle(
                         fontSize: 14,
                         fontWeight: FontWeight.w700,
                       ),
                     ),
                     Text(
-                      route.via,
+                      widget.via,
                       style: const TextStyle(fontSize: 11, color: Colors.black54),
                     ),
                     Text(
-                      route.code,
+                      widget.code,
                       style: const TextStyle(fontSize: 11, color: Colors.black54),
                     ),
                   ],
@@ -88,16 +94,7 @@ class _RouteCardState extends State<RouteCard> {
             duration: const Duration(milliseconds: 180),
             alignment: Alignment.topCenter,
             child: _expanded
-                ? const Padding(
-                    padding: EdgeInsets.fromLTRB(4, 8, 12, 8),
-                    child: Align(
-                      alignment: Alignment.centerLeft,
-                      child: Text(
-                        'Route details coming soon',
-                        style: TextStyle(fontSize: 12, color: Colors.black54),
-                      ),
-                    ),
-                  )
+                ? const SizedBox(height: 48, width: double.infinity)
                 : const SizedBox(width: double.infinity),
           ),
         ],
