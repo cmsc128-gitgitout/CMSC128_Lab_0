@@ -50,19 +50,20 @@ class DefaultFirebaseOptions {
   }
 
   static const FirebaseOptions web = FirebaseOptions(
-    apiKey: 'AIzaSyDD-BnAKlpg9ivQiiVkjSBVdyhayxYs-KE',
-    appId: '1:670779049709:web:d96ceffa2275a3ee98aee4',
-    messagingSenderId: '670779049709',
-    projectId: 'cmsc-128-labs',
-    authDomain: 'cmsc-128-labs.firebaseapp.com',
-    storageBucket: 'cmsc-128-labs.firebasestorage.app',
+    apiKey: 'AIzaSyCPjJJIzX54-Y4XsjP9zYXEKzWPtYdMbyw',
+    appId: '1:526792341486:web:c2776bc6f7dac00ef480ff',
+    messagingSenderId: '526792341486',
+    projectId: 'tara-larga',
+    authDomain: 'tara-larga.firebaseapp.com',
+    storageBucket: 'tara-larga.firebasestorage.app',
+    measurementId: 'G-HSLBWJD0PF',
   );
 
   static const FirebaseOptions android = FirebaseOptions(
-    apiKey: 'AIzaSyAZZP7k3tUPF7mb7W7peAodRAiAnT0s8M4',
-    appId: '1:670779049709:android:757f90bff3ffdfb098aee4',
-    messagingSenderId: '670779049709',
-    projectId: 'cmsc-128-labs',
-    storageBucket: 'cmsc-128-labs.firebasestorage.app',
+    apiKey: 'AIzaSyDic1fUlSINcDadcNLKkOn77S_gb2BQvUY',
+    appId: '1:526792341486:android:10cd3a95ae36140bf480ff',
+    messagingSenderId: '526792341486',
+    projectId: 'tara-larga',
+    storageBucket: 'tara-larga.firebasestorage.app',
   );
 }
