@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import '../widgets/pill_toggle.dart';
 import '../widgets/route_card.dart';
 import '../widgets/search_pill.dart';
+import '../widgets/route_card.dart';
 
 /// Network tab: routes and terminals (UI only, no data yet).
 class NetworkScreen extends StatefulWidget {
@@ -16,7 +17,7 @@ class _NetworkScreenState extends State<NetworkScreen> {
   static const _tabs = ['Routes', 'Terminals'];
   static const _filters = [
     'All Terminals',
-    'Jeepney and e-bus Terminals',
+    'Jeepney Terminals',
     'Bus Terminals',
   ];
 
@@ -65,11 +66,7 @@ class _NetworkScreenState extends State<NetworkScreen> {
               ),
               const SizedBox(height: 16),
               Expanded(
-                child: _tab == 0
-                    ? _buildRoutes()
-                    : const Center(
-                        child: Text('Terminals: development in progress'),
-                      ),
+                child: _tab == 0 ? _buildRoutes() : _buildTerminals(),
               ),
             ],
           ),
@@ -88,19 +85,39 @@ class _NetworkScreenState extends State<NetworkScreen> {
     );
   }
 
-  List<Widget> _section(String title, {required int count}) {
-    return [
-      Padding(
-        padding: const EdgeInsets.only(top: 8, bottom: 8),
-        child: Text(
-          title,
-          style: const TextStyle(
-            fontSize: 12,
-            fontWeight: FontWeight.w700,
-            letterSpacing: 0.5,
+  Widget _buildTerminals() {
+    return ListView(
+      padding: const EdgeInsets.only(bottom: 16),
+      children: [
+        _sectionTitle('MAJOR TERMINALS'),
+        for (int i = 0; i < 3; i++)
+          Padding(
+            padding: const EdgeInsets.only(bottom: 10),
+            child: RouteCard(
+              onViewMap: () => _toast('TODO: show terminal on map'),
+            ),
           ),
+      ],
+    );
+  }
+
+  Widget _sectionTitle(String title) {
+    return Padding(
+      padding: const EdgeInsets.only(top: 8, bottom: 8),
+      child: Text(
+        title,
+        style: const TextStyle(
+          fontSize: 12,
+          fontWeight: FontWeight.w700,
+          letterSpacing: 0.5,
         ),
       ),
+    );
+  }
+
+  List<Widget> _section(String title, {required int count}) {
+    return [
+      _sectionTitle(title),
       for (int i = 0; i < count; i++)
         Padding(
           padding: const EdgeInsets.only(bottom: 10),
