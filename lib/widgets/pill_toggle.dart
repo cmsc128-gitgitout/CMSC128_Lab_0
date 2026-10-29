@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-/// Row of pill buttons where one is selected (used for tabs and filter chips).
+// Row of pill buttons where one is selected (used for tabs and filter chips).
 class PillToggle extends StatelessWidget {
   const PillToggle({
     super.key,

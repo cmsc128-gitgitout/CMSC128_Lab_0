@@ -1,3 +1,6 @@
+// Defines the app's visual theme, including its color scheme
+// and component styles.
+
 import 'package:flutter/material.dart';
 
 class AppTheme {

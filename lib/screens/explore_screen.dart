@@ -4,7 +4,7 @@ import '../widgets/ai_assistant_button.dart';
 import '../widgets/map_placeholder.dart';
 import '../widgets/search_pill.dart';
 
-/// Explore tab (map). The map layer is a placeholder for now.
+// Explore tab (map). The map layer is a placeholder for now.
 class ExploreScreen extends StatelessWidget {
   const ExploreScreen({super.key});
 

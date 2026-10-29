@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 import 'explore_screen.dart';
 import 'network_screen.dart';
 
-/// Main screen: hosts the bottom navigation and the tab screens.
+// Main screen: hosts the bottom navigation and the tab screens.
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
 

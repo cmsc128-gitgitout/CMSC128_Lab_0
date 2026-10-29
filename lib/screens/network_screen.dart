@@ -5,7 +5,7 @@ import '../widgets/route_card.dart';
 import '../widgets/search_pill.dart';
 import '../widgets/route_card.dart';
 
-/// Network tab: routes and terminals (UI only, no data yet).
+// Network tab: routes and terminals (UI only, no data yet).
 class NetworkScreen extends StatefulWidget {
   const NetworkScreen({super.key});
 

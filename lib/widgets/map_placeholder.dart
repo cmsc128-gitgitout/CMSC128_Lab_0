@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 
-/// Stand-in for the real map. Replace its usage in ExploreScreen
-/// once the map package is integrated.
+// Stand-in for the real map. Replace its usage in ExploreScreen
+// once the map package is integrated.
 class MapPlaceholder extends StatelessWidget {
   const MapPlaceholder({super.key});
 

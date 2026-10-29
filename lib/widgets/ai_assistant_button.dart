@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-/// Floating button that opens the optional AI commuter assistant.
+// Floating button that opens the optional AI commuter assistant.
 class AiAssistantButton extends StatelessWidget {
   const AiAssistantButton({super.key, this.onPressed});
 

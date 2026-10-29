@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-/// Expandable card for one route. All texts are empty until data is wired in.
+// Expandable card for one route. All texts are empty until data is wired in.
 class RouteCard extends StatefulWidget {
   const RouteCard({
     super.key,
