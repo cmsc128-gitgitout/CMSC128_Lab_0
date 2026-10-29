@@ -14,6 +14,9 @@ class NetworkScreen extends StatefulWidget {
 }
 
 class _NetworkScreenState extends State<NetworkScreen> {
+  // we need to refractor this later on to seperate constants from 
+  // the implementation (ex. put these in a seperate constants.dart or
+  // declare them on the model (data architecture naton))
   static const _tabs = ['Routes', 'Terminals'];
   static const _filters = [
     'All Terminals',
