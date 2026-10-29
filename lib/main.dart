@@ -85,26 +85,25 @@ class _MyHomePageState extends State<MyHomePage> {
         title: Text(widget.title),
       ),
       body: MapWidget(
-        // Center is a layout widget. It takes a single child and positions it
-        // in the middle of the parent.
+        styleUri: MapboxStyles.MAPBOX_STREETS,
+        textureView: true,
         viewport: CameraViewportState(
-          // Column is also a layout widget. It takes a list of children and
-          // arranges them vertically. By default, it sizes itself to fit its
-          // children horizontally, and tries to be as tall as its parent.
-          //
-          // Column has various properties to control how it sizes itself and
-          // how it positions its children. Here we use mainAxisAlignment to
-          // center the children vertically; the main axis here is the vertical
-          // axis because Columns are vertical (the cross axis would be
-          // horizontal).
-          //
-          // TRY THIS: Invoke "debug painting" (choose the "Toggle Debug Paint"
-          // action in the IDE, or press "p" in the console), to see the
-          // wireframe for each widget.
           center: Point(coordinates: Position(122.5621, 10.7202)), // long, lat (Iloilo City)
           zoom: 12,
-
         ),
+        onMapCreated: (MapboxMap map) {
+          map.setBounds(
+            CameraBoundsOptions(
+              bounds: CoordinateBounds(
+                southwest: Point(coordinates: Position(122.47, 10.64)), 
+                northeast: Point(coordinates: Position(122.62, 10.78)), 
+                infiniteBounds: false,
+                ),
+                minZoom: 11,
+                maxZoom: 18,
+            )
+          );
+        },
       ),
     );
   }
