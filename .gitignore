@@ -65,3 +65,6 @@ serviceAccountKey.json
 seed/node_modules/
 serviceAccountKey.json
 *firebase-adminsdk*.json
+
+# Gradle build reports
+**/build/reports/
