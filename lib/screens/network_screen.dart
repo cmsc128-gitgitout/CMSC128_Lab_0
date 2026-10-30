@@ -1,11 +1,13 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 
+import '../providers/transit_provider.dart';
+import '../utils/transport_labels.dart';
 import '../widgets/pill_toggle.dart';
 import '../widgets/route_card.dart';
 import '../widgets/search_pill.dart';
-import '../widgets/route_card.dart';
 
-// Network tab: routes and terminals (UI only, no data yet).
+/// Network tab: routes and terminals, loaded from Firestore via TransitProvider.
 class NetworkScreen extends StatefulWidget {
   const NetworkScreen({super.key});
 
@@ -14,19 +16,20 @@ class NetworkScreen extends StatefulWidget {
 }
 
 class _NetworkScreenState extends State<NetworkScreen> {
-  // we need to refractor this later on to seperate constants from 
-  // the implementation (ex. put these in a seperate constants.dart or
-  // declare them on the model (data architecture naton))
+  // We need to refactor this later to separate constants from the
+  // implementation (e.g., put these in a separate constants.dart or
+  // declare them in the model as part of the data architecture).
   static const _tabs = ['Routes', 'Terminals'];
   static const _filters = [
     'All Terminals',
-    'Jeepney Terminals',
+    'Jeepney and e-bus Terminals',
     'Bus Terminals',
   ];
 
   int _tab = 0;
   int _filter = 0;
 
+  // Displays a temporary message at the bottom of the screen.
   void _toast(String message) {
     ScaffoldMessenger.of(context)
       ..hideCurrentSnackBar()
@@ -35,6 +38,10 @@ class _NetworkScreenState extends State<NetworkScreen> {
 
   @override
   Widget build(BuildContext context) {
+    // Listens for changes in TransitProvider and rebuilds the screen
+    // whenever its transit data or loading state changes.
+    final provider = context.watch<TransitProvider>();
+
     return Scaffold(
       backgroundColor: Colors.white,
       body: SafeArea(
@@ -68,9 +75,10 @@ class _NetworkScreenState extends State<NetworkScreen> {
                 fontSize: 12,
               ),
               const SizedBox(height: 16),
-              Expanded(
-                child: _tab == 0 ? _buildRoutes() : _buildTerminals(),
-              ),
+
+              // Displays the appropriate content based on the selected tab
+              // and the current state of the transit data.
+              Expanded(child: _buildBody(provider)),
             ],
           ),
         ),
@@ -78,32 +86,93 @@ class _NetworkScreenState extends State<NetworkScreen> {
     );
   }
 
-  Widget _buildRoutes() {
+  // Handles the different states of the transit data before displaying
+  // the routes or terminals.
+  Widget _buildBody(TransitProvider provider) {
+    // Shows a loading indicator while fetching data from Firestore.
+    if (provider.isLoading) {
+      return const Center(child: CircularProgressIndicator());
+    }
+
+    // Displays an error message and allows the user to retry loading the data.
+    if (provider.error != null) {
+      return Center(
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Text(provider.error!, textAlign: TextAlign.center),
+            const SizedBox(height: 12),
+            FilledButton(
+              onPressed: provider.load,
+              child: const Text('Try again'),
+            ),
+          ],
+        ),
+      );
+    }
+
+    // Displays routes or terminals depending on the selected tab.
+    return _tab == 0 ? _buildRoutes(provider) : _buildTerminals(provider);
+  }
+
+  Widget _buildRoutes(TransitProvider provider) {
+    // Retrieves the routes currently available in TransitProvider.
+    final routes = provider.routes;
+
+    if (routes.isEmpty) {
+      return const Center(child: Text('No routes found'));
+    }
+
+    // The data has no city / out-of-town field yet, so all routes are listed
+    // under CITY ROUTES for now.
     return ListView(
       padding: const EdgeInsets.only(bottom: 16),
-      // irefactor ni kay as of now, bad practice pa ni
-      // kay naggamit kita di counters and gingamit lang siya 
-      // para maindicate ang number kang widget nga idisplay
-      // TODO: if naimplement na ang backend let's use ang data 
-      // for state changes and irender lang kang ui if may any changes
       children: [
-        ..._section('CITY ROUTES', count: 2),
-        ..._section('OUT OF TOWN ROUTES', count: 2),
+        _sectionTitle('CITY ROUTES'),
+
+        // Generates a RouteCard for each route retrieved from Firestore.
+        for (final r in routes)
+          Padding(
+            padding: const EdgeInsets.only(bottom: 10),
+            child: RouteCard(
+              // Uses the route ID as its key to help Flutter identify each card.
+              key: ValueKey(r.id),
+              badge: transportBadge(provider.modeName(r.transportModeId)),
+              title: r.name,
+              via: provider.routeEndpoints(r),
+              code: '#${r.routeNo}',
+              onViewMap: () => _toast('TODO: show route on map'),
+            ),
+          ),
       ],
     );
   }
 
-  Widget _buildTerminals() {
+  Widget _buildTerminals(TransitProvider provider) {
+    // Retrieves the terminals currently available in TransitProvider.
+    final terminals = provider.terminals;
+
+    if (terminals.isEmpty) {
+      return const Center(child: Text('No terminals found'));
+    }
+
     return ListView(
       padding: const EdgeInsets.only(bottom: 16),
-      // same with this one gingamit lang ni for widget display
-      // ichange ta ni if may ara na data
       children: [
         _sectionTitle('MAJOR TERMINALS'),
-        for (int i = 0; i < 3; i++)
+
+        // Generates a RouteCard for each terminal retrieved from Firestore.
+        for (final t in terminals)
           Padding(
             padding: const EdgeInsets.only(bottom: 10),
             child: RouteCard(
+              // Uses the terminal ID as its key to help Flutter identify each card.
+              key: ValueKey(t.id),
+              badge: provider
+                  .modeNamesServing(t.id)
+                  .map(transportBadge)
+                  .join(' / '),
+              title: t.name,
               onViewMap: () => _toast('TODO: show terminal on map'),
             ),
           ),
@@ -111,6 +180,7 @@ class _NetworkScreenState extends State<NetworkScreen> {
     );
   }
 
+  // Builds a section heading for organizing routes and terminals.
   Widget _sectionTitle(String title) {
     return Padding(
       padding: const EdgeInsets.only(top: 8, bottom: 8),
@@ -123,18 +193,5 @@ class _NetworkScreenState extends State<NetworkScreen> {
         ),
       ),
     );
-  }
-
-  List<Widget> _section(String title, {required int count}) {
-    return [
-      _sectionTitle(title),
-      for (int i = 0; i < count; i++)
-        Padding(
-          padding: const EdgeInsets.only(bottom: 10),
-          child: RouteCard(
-            onViewMap: () => _toast('TODO: show route on map'),
-          ),
-        ),
-    ];
   }
 }
