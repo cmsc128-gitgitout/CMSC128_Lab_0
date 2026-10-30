@@ -1,11 +1,13 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 
+import '../providers/transit_provider.dart';
+import '../utils/transport_labels.dart';
 import '../widgets/pill_toggle.dart';
 import '../widgets/route_card.dart';
 import '../widgets/search_pill.dart';
-import '../widgets/route_card.dart';
 
-// Network tab: routes and terminals (UI only, no data yet).
+// Network tab: routes and terminals.
 class NetworkScreen extends StatefulWidget {
   const NetworkScreen({super.key});
 
@@ -14,9 +16,6 @@ class NetworkScreen extends StatefulWidget {
 }
 
 class _NetworkScreenState extends State<NetworkScreen> {
-  // we need to refractor this later on to seperate constants from 
-  // the implementation (ex. put these in a seperate constants.dart or
-  // declare them on the model (data architecture naton))
   static const _tabs = ['Routes', 'Terminals'];
   static const _filters = [
     'All Terminals',
@@ -25,7 +24,7 @@ class _NetworkScreenState extends State<NetworkScreen> {
   ];
 
   int _tab = 0;
-  int _filter = 0;
+  int _filter = 0; // UI-only for now
 
   void _toast(String message) {
     ScaffoldMessenger.of(context)
@@ -35,6 +34,9 @@ class _NetworkScreenState extends State<NetworkScreen> {
 
   @override
   Widget build(BuildContext context) {
+    // Data is loaded at startup in main.dart; the screen only watches it.
+    final provider = context.watch<TransitProvider>();
+
     return Scaffold(
       backgroundColor: Colors.white,
       body: SafeArea(
@@ -68,9 +70,7 @@ class _NetworkScreenState extends State<NetworkScreen> {
                 fontSize: 12,
               ),
               const SizedBox(height: 16),
-              Expanded(
-                child: _tab == 0 ? _buildRoutes() : _buildTerminals(),
-              ),
+              Expanded(child: _buildBody(provider)),
             ],
           ),
         ),
@@ -78,32 +78,86 @@ class _NetworkScreenState extends State<NetworkScreen> {
     );
   }
 
-  Widget _buildRoutes() {
+  // Order matters: loading, then error, then the tab content.
+  Widget _buildBody(TransitProvider provider) {
+    if (provider.isLoading) {
+      return const Center(child: CircularProgressIndicator());
+    }
+    if (provider.error != null) {
+      return Center(
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Text(provider.error!, textAlign: TextAlign.center),
+            const SizedBox(height: 12),
+            FilledButton(
+              onPressed: provider.load, // the only place the screen calls load()
+              child: const Text('Try again'),
+            ),
+          ],
+        ),
+      );
+    }
+    return _tab == 0 ? _buildRoutes(provider) : _buildTerminals(provider);
+  }
+
+  Widget _buildRoutes(TransitProvider provider) {
+    final routes = provider.routes;
+    if (routes.isEmpty) {
+      return const Center(child: Text('No routes found'));
+    }
     return ListView(
       padding: const EdgeInsets.only(bottom: 16),
-      // irefactor ni kay as of now, bad practice pa ni
-      // kay naggamit kita di counters and gingamit lang siya 
-      // para maindicate ang number kang widget nga idisplay
-      // TODO: if naimplement na ang backend let's use ang data 
-      // for state changes and irender lang kang ui if may any changes
       children: [
-        ..._section('CITY ROUTES', count: 2),
-        ..._section('OUT OF TOWN ROUTES', count: 2),
+        _sectionTitle('CITY ROUTES'),
+        for (final r in routes) _routeCard(provider, r),
       ],
     );
   }
 
-  Widget _buildTerminals() {
+  Widget _routeCard(TransitProvider provider, dynamic r) {
+    // Map points: first stop = start, last stop = end.
+    // Fewer than 2 stops (or unknown ids) means no map.
+    final first = r.stopIds.length >= 2 ? provider.stopById(r.stopIds.first) : null;
+    final last = r.stopIds.length >= 2 ? provider.stopById(r.stopIds.last) : null;
+    final hasMap = first != null && last != null;
+
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 10),
+      child: RouteCard(
+        key: ValueKey(r.id), // keeps expand/collapse state on the right card
+        badge: transportBadge(provider.modeName(r.transportModeId)),
+        title: r.name,
+        via: provider.routeEndpoints(r),
+        code: '#${r.routeNo}',
+        // regularFare / discountedFare omitted -> card shows TBD (sprint 2)
+        dropOffs: r.stopIds.skip(1).map<String>(provider.stopName).toList(),
+        startLat: hasMap ? first.lat : null,
+        startLng: hasMap ? first.lng : null,
+        endLat: hasMap ? last.lat : null,
+        endLng: hasMap ? last.lng : null,
+        onViewMap: () => _toast('TODO: show route on map'),
+      ),
+    );
+  }
+
+  Widget _buildTerminals(TransitProvider provider) {
+    final terminals = provider.terminals;
+    if (terminals.isEmpty) {
+      return const Center(child: Text('No terminals found'));
+    }
     return ListView(
       padding: const EdgeInsets.only(bottom: 16),
-      // same with this one gingamit lang ni for widget display
-      // ichange ta ni if may ara na data
       children: [
         _sectionTitle('MAJOR TERMINALS'),
-        for (int i = 0; i < 3; i++)
+        for (final t in terminals)
           Padding(
             padding: const EdgeInsets.only(bottom: 10),
             child: RouteCard(
+              key: ValueKey(t.id),
+              badge: provider.modeNamesServing(t.id).map(transportBadge).join(' / '),
+              title: t.name,
+              // district line left blank: no data behind it yet
               onViewMap: () => _toast('TODO: show terminal on map'),
             ),
           ),
@@ -123,18 +177,5 @@ class _NetworkScreenState extends State<NetworkScreen> {
         ),
       ),
     );
-  }
-
-  List<Widget> _section(String title, {required int count}) {
-    return [
-      _sectionTitle(title),
-      for (int i = 0; i < count; i++)
-        Padding(
-          padding: const EdgeInsets.only(bottom: 10),
-          child: RouteCard(
-            onViewMap: () => _toast('TODO: show route on map'),
-          ),
-        ),
-    ];
   }
 }
