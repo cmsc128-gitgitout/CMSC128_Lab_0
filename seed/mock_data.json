@@ -1,0 +1,112 @@
+{
+  "transport_modes": {
+    "M1": {
+      "name": "Jeepney"
+    }
+  },
+  "boarding_points": {
+    "S01": {
+      "name": "Tagbak Terminal",
+      "lat": 10.762367932820773,
+      "lng": 122.57778214831224,
+      "is_terminal": true
+    },
+    "S02": {
+      "name": "Jaro Plaza",
+      "lat": 10.724528220942,
+      "lng": 122.55736675378803,
+      "is_terminal": false
+    },
+    "S03": {
+      "name": "SM Hypermarket",
+      "lat": 10.7211807663579,
+      "lng": 122.56095492441814,
+      "is_terminal": false
+    },
+    "S04": {
+      "name": "WVSU (Luna St.)",
+      "lat": 10.713761065767988,
+      "lng": 122.56229925193936,
+      "is_terminal": false
+    },
+    "S05": {
+      "name": "Provincial Capitol",
+      "lat": 10.702816371724033,
+      "lng": 122.56921646802083,
+      "is_terminal": false
+    },
+    "S06": {
+      "name": "Atrium Mall",
+      "lat": 10.724487119612382,
+      "lng": 122.55811160193946,
+      "is_terminal": false
+    },
+    "S07": {
+      "name": "Robinsons Iloilo",
+      "lat": 10.694255814386269,
+      "lng": 122.56619133844575,
+      "is_terminal": false
+    },
+    "S08": {
+      "name": "Iloilo Central Market",
+      "lat": 10.692634253258415,
+      "lng": 122.57018943844558,
+      "is_terminal": false
+    },
+    "S09": {
+      "name": "Ungka Terminal",
+      "lat": 10.746452399543857,
+      "lng": 122.5389921789265,
+      "is_terminal": true
+    },
+    "S10": {
+      "name": "CPU (Lopez Jaena St.)",
+      "lat": 10.729433456106213,
+      "lng": 122.54913025193932,
+      "is_terminal": false
+    },
+    "S11": {
+      "name": "Plaza Libertad",
+      "lat": 10.692623,
+      "lng": 122.573722,
+      "is_terminal": false
+    }
+  },
+
+  "routes": {
+    "R01": {
+      "route_no": "JR10",
+      "name": "Buntatala / Tagbak to City Proper",
+      "tmode_id": "M1",
+      "direction": "going",
+      "is_active": true,
+      "length_km": 11.84,
+      "stop_ids": [
+        "S01",
+        "S02",
+        "S03",
+        "S04",
+        "S05",
+        "S06",
+        "S07",
+        "S08"
+      ]
+    },
+
+    "R02": {
+      "route_no": "JR03",
+      "name": "Ungka to Iloilo City Proper via CPU",
+      "tmode_id": "M1",
+      "direction": "going",
+      "is_active": true,
+      "length_km": 9.33,
+      "stop_ids": [
+        "S09",
+        "S10",
+        "S02",
+        "S05",
+        "S11"
+      ]
+    }
+  }
+}

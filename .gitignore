@@ -59,3 +59,9 @@ service-account*.json
 .env
 .env.*
 !.env.example
+seed/node_modules/
+serviceAccountKey.json
+*firebase-adminsdk*.json
+seed/node_modules/
+serviceAccountKey.json
+*firebase-adminsdk*.json
