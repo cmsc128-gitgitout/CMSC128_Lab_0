@@ -6,6 +6,7 @@ import '../utils/transport_labels.dart';
 import '../widgets/pill_toggle.dart';
 import '../widgets/route_card.dart';
 import '../widgets/search_pill.dart';
+import '../models/transit_route.dart';
 
 // Network tab: routes and terminals.
 class NetworkScreen extends StatefulWidget {
@@ -115,11 +116,13 @@ class _NetworkScreenState extends State<NetworkScreen> {
     );
   }
 
-  Widget _routeCard(TransitProvider provider, dynamic r) {
+  Widget _routeCard(TransitProvider provider, TransitRoute r) {
     // Map points: first stop = start, last stop = end.
     // Fewer than 2 stops (or unknown ids) means no map.
-    final first = r.stopIds.length >= 2 ? provider.stopById(r.stopIds.first) : null;
-    final last = r.stopIds.length >= 2 ? provider.stopById(r.stopIds.last) : null;
+    final first =
+        r.stopIds.length >= 2 ? provider.stopById(r.stopIds.first) : null;
+    final last =
+        r.stopIds.length >= 2 ? provider.stopById(r.stopIds.last) : null;
     final hasMap = first != null && last != null;
 
     return Padding(
@@ -128,9 +131,8 @@ class _NetworkScreenState extends State<NetworkScreen> {
         key: ValueKey(r.id), // keeps expand/collapse state on the right card
         badge: transportBadge(provider.modeName(r.transportModeId)),
         title: r.name,
-        via: provider.routeEndpoints(r),
-        code: '#${r.routeNo}',
-        // regularFare / discountedFare omitted -> card shows TBD (sprint 2)
+        via: '', // no "via" field in the data yet
+        code: 'Fare: TBD', // real fares come with fare_rules (sprint 2)
         dropOffs: r.stopIds.skip(1).map<String>(provider.stopName).toList(),
         startLat: hasMap ? first.lat : null,
         startLng: hasMap ? first.lng : null,
