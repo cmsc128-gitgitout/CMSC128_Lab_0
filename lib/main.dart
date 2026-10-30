@@ -4,6 +4,9 @@ import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'firebase_options.dart';
 
+// map imports
+import 'package:mapbox_maps_flutter/mapbox_maps_flutter.dart';
+
 // screens imports
 import 'screens/home_screen.dart';
 
