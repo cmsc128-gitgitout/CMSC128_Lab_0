@@ -73,7 +73,6 @@
     }
   },
 
-
   "routes": {
     "R01": {
       "route_no": "JR10",
@@ -91,10 +90,9 @@
         "S06",
         "S07",
         "S08"
-      ],
-      "path": []
+      ]
     },
-    
+
     "R02": {
       "route_no": "JR03",
       "name": "Ungka to Iloilo City Proper via CPU",
@@ -108,8 +106,7 @@
         "S02",
         "S05",
         "S11"
-      ],
-      "path": []
+      ]
     }
   }
 }
