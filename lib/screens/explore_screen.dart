@@ -1,10 +1,9 @@
 import 'package:flutter/material.dart';
 
 import '../widgets/ai_assistant_button.dart';
-import '../widgets/map_placeholder.dart';
+import '../widgets/iloilo_map.dart';
 import '../widgets/search_pill.dart';
 
-// Explore tab (map). The map layer is a placeholder for now.
 class ExploreScreen extends StatelessWidget {
   const ExploreScreen({super.key});
 
@@ -18,8 +17,8 @@ class ExploreScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     return Stack(
       children: [
-        // Layer 1: map (swap MapPlaceholder with the real map widget later)
-        const Positioned.fill(child: MapPlaceholder()),
+        // Layer 1: map 
+        const Positioned.fill(child: IloiloMap()),
 
         // Layer 2: search bar
         SafeArea(
