@@ -55,6 +55,8 @@ class TransitProvider extends ChangeNotifier {
 
   String stopName(String stopId) => _points[stopId]?.name ?? '';
 
+  BoardingPoint? stopById(String stopId) => _points[stopId];
+
   // "First stop → last stop" for a route, or '' if it has no stops.
   String routeEndpoints(TransitRoute route) {
     if (route.stopIds.isEmpty) return '';
