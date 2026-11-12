@@ -24,13 +24,16 @@ class SearchPill extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final scheme = Theme.of(context).colorScheme;
+    // final scheme = Theme.of(context).colorScheme;
 
     return Material(
-      color: scheme.surfaceContainerHigh,
+      color: Colors.white,
       elevation: 2,
       shadowColor: Colors.black38,
-      borderRadius: BorderRadius.circular(28),
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(16), // 28
+        side: const BorderSide(color: Colors.black, width: 1.5),
+      ),
       child: Container(
         height: 52,
         padding: const EdgeInsets.symmetric(horizontal: 16),
@@ -41,18 +44,19 @@ class SearchPill extends StatelessWidget {
           onTap: onTap,
           style: TextStyle(
             fontSize: 16,
-            color: scheme.onSurface,
+            fontWeight: FontWeight.w600,
+            color: Colors.black,
           ),
 
           decoration: InputDecoration(
             hintText: hint,
-
-            hintStyle: TextStyle(
+            hintStyle: const TextStyle(
               fontSize: 16,
-              color: scheme.onSurfaceVariant.withOpacity(0.6),
+              fontWeight: FontWeight.w700,
+              color: Color(0xFF666666),
             ),
 
-            icon: Icon(Icons.search, color: scheme.onSurface),
+            icon: const Icon(Icons.search, size: 28, color: Colors.black),
             border: InputBorder.none,
             isDense: true,
             contentPadding: EdgeInsets.zero,
