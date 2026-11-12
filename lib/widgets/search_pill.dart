@@ -28,7 +28,7 @@ class SearchPill extends StatelessWidget {
 
     return Material(
       color: Colors.white,
-      elevation: 2,
+      elevation: 3,
       shadowColor: Colors.black38,
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(16), // 28

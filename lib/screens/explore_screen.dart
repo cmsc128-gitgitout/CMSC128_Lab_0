@@ -32,7 +32,7 @@ class _ExploreScreenState extends State<ExploreScreen> {
         // Layer 2: search bar
         SafeArea(
           child: Padding(
-            padding: const EdgeInsets.fromLTRB(16, 12, 16, 0),
+            padding: const EdgeInsets.fromLTRB(16, 50, 16, 0),
             child: SearchPill(
               hint: 'Where to?',
               onTap: () => _toast(context, 'TODO: open destination search'),
