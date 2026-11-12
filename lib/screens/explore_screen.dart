@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../widgets/ai_assistant_button.dart';
+import '../widgets/map_buttons.dart';
 import '../widgets/iloilo_map.dart';
 import '../widgets/search_pill.dart';
 
@@ -50,13 +51,13 @@ class ExploreScreen extends StatelessWidget {
             child: Column(
               mainAxisSize: MainAxisSize.min,
               children: [
-                _MapButton(
+                MapButton(
                   icon: Icons.my_location,
                   tooltip: 'My location',
                   onPressed: () => _toast(context, 'TODO: center on location'),
                 ),
                 const SizedBox(height: 12),
-                _MapButton(
+                MapButton(
                   icon: Icons.directions_outlined,
                   tooltip: 'Directions',
                   onPressed: () => _toast(context, 'TODO: open directions'),
@@ -66,40 +67,6 @@ class ExploreScreen extends StatelessWidget {
           ),
         ),
       ],
-    );
-  }
-}
-
-// Rounded square button floating over the map
-class _MapButton extends StatelessWidget {
-  const _MapButton({
-    required this.icon,
-    required this.tooltip,
-    required this.onPressed,
-  });
-
-  final IconData icon;
-  final String tooltip;
-  final VoidCallback onPressed;
-
-  @override
-  Widget build(BuildContext context) {
-    return Tooltip(
-      message: tooltip,
-      child: Material(
-        color: const Color(0xFFF5F9FF),
-        elevation: 4,
-        borderRadius: BorderRadius.circular(14),
-        child: InkWell(
-          borderRadius: BorderRadius.circular(14),
-          onTap: onPressed,
-          child: SizedBox(
-            width: 56,
-            height: 56,
-            child: Icon(icon, size: 30, color: Colors.black),
-          ),
-        ),
-      ),
     );
   }
 }
