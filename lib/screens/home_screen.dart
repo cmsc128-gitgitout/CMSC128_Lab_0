@@ -34,10 +34,12 @@ class _HomeScreenState extends State<HomeScreen> {
           destinations: const [
             NavigationDestination(
               icon: Icon(Icons.map_outlined),
+              selectedIcon: Icon(Icons.map),
               label: 'Explore',
             ),
             NavigationDestination(
               icon: Icon(Icons.directions_bus_outlined),
+              selectedIcon: Icon(Icons.directions_bus),
               label: 'Routes',
             ),
           ],

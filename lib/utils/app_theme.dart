@@ -12,8 +12,8 @@ class AppTheme {
   static const Color accent = Color(0xFFFFA500);
   static const Color background = Color(0xFFE8F5E9);
 
-  static const Color navSelected = accent;
-  static const Color navUnselected = Colors.black;
+  static const Color navSelected = primary;
+  static const Color navUnselected = Color(0xFF5F6368);
 
   static ThemeData get light => ThemeData(
         useMaterial3: true,
@@ -34,7 +34,7 @@ class AppTheme {
           backgroundColor: Colors.white,
           surfaceTintColor: Colors.transparent,
           elevation: 0,
-          indicatorColor: Colors.transparent,
+          indicatorColor: secondary,
           iconTheme: WidgetStateProperty.resolveWith((states) {
             final selected = states.contains(WidgetState.selected);
             return IconThemeData(
@@ -46,7 +46,7 @@ class AppTheme {
             final selected = states.contains(WidgetState.selected);
             return TextStyle(
               fontSize: 13,
-              fontWeight: FontWeight.w600,
+              fontWeight: selected ? FontWeight.w700 : FontWeight.w500,
               color: selected ? navSelected : navUnselected,
             );
           }),
