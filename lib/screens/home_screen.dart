@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import 'explore_screen.dart';
 import 'network_screen.dart';
+import 'chatbot_screen.dart';
 
 // Main screen: hosts the bottom navigation and the tab screens.
 class HomeScreen extends StatefulWidget {
@@ -17,6 +18,7 @@ class _HomeScreenState extends State<HomeScreen> {
   static const _tabs = <Widget>[
     ExploreScreen(),
     NetworkScreen(),
+    ChatbotScreen(),
   ];
 
   @override
@@ -41,6 +43,11 @@ class _HomeScreenState extends State<HomeScreen> {
               icon: Icon(Icons.directions_bus_outlined),
               selectedIcon: Icon(Icons.directions_bus),
               label: 'Routes',
+            ),
+            NavigationDestination(
+              icon: Icon(Icons.smart_toy_outlined),
+              selectedIcon: Icon(Icons.smart_toy),
+              label: 'Larga',
             ),
           ],
         ),
