@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 
+import '../utils/app_theme.dart';
+
 // Rounded square button floating over the map.
 class MapButton extends StatelessWidget {
   const MapButton({
@@ -7,11 +9,13 @@ class MapButton extends StatelessWidget {
     required this.icon,
     required this.tooltip,
     required this.onPressed,
+    this.active = false,
   });
 
   final IconData icon;
   final String tooltip;
   final VoidCallback onPressed;
+  final bool active;
 
   @override
   Widget build(BuildContext context) {
@@ -19,7 +23,7 @@ class MapButton extends StatelessWidget {
     return Tooltip(
       message: tooltip,
       child: Material(
-        color: const Color(0xFFF5F9FF),
+        color: active ? AppTheme.primary : const Color(0xFFF5F9FF),
         elevation: 4,
         borderRadius: radius,
         child: InkWell(
@@ -28,7 +32,11 @@ class MapButton extends StatelessWidget {
           child: SizedBox(
             width: 56,
             height: 56,
-            child: Icon(icon, size: 30, color: Colors.black),
+            child: Icon(
+              icon, 
+              size: 30, 
+              color: active ? Colors.white : Colors.black,
+            ),
           ),
         ),
       ),
