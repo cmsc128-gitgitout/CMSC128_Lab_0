@@ -19,23 +19,22 @@ class MapButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final radius = BorderRadius.circular(14);
     return Tooltip(
       message: tooltip,
       child: Material(
-        color: active ? AppTheme.primary : const Color(0xFFF5F9FF),
+        color: active ? AppTheme.primary : Colors.white,
         elevation: 4,
-        borderRadius: radius,
+        shape: const CircleBorder(),
         child: InkWell(
-          borderRadius: radius,
+          customBorder: const CircleBorder(),
           onTap: onPressed,
           child: SizedBox(
             width: 56,
             height: 56,
             child: Icon(
               icon, 
-              size: 30, 
-              color: active ? Colors.white : Colors.black,
+              size: 28, 
+              color: active ? Colors.white : AppTheme.primary,
             ),
           ),
         ),
