@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 
+import 'choose_on_map_screen.dart';
+
 // Plan your trip screen: start and destination inputs plus location pickers.
 // Skeleton only: no state, no real search yet.
 class PlanTripScreen extends StatelessWidget {
@@ -11,7 +13,7 @@ class PlanTripScreen extends StatelessWidget {
       appBar: AppBar(title: const Text('Plan your trip')),
       body: ListView(
         padding: const EdgeInsets.all(16),
-        children: const [
+        children: [
           // Start location input
           TextField(decoration: InputDecoration(hintText: 'Start location')),
           SizedBox(height: 12),
@@ -24,6 +26,9 @@ class PlanTripScreen extends StatelessWidget {
           ListTile(
             leading: Icon(Icons.map_outlined),
             title: Text('Choose on map'),
+            onTap: () => Navigator.of(context).push(
+              MaterialPageRoute(builder: (_) => const ChooseOnMapScreen()),
+            ),
           ),
 
           // List sections (placeholders)
