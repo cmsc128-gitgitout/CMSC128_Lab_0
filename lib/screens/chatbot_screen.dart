@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 
 // AI commuter assistant chat screen (skeleton).
-class LargaScreen extends StatelessWidget {
-  const LargaScreen({super.key});
+class ChatbotScreen extends StatelessWidget {
+  const ChatbotScreen({super.key});
 
   @override
   Widget build(BuildContext context) {
