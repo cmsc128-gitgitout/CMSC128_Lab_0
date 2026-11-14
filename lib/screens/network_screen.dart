@@ -116,24 +116,33 @@ class _NetworkScreenState extends State<NetworkScreen> {
   }
 
   Widget _buildSearch() {
-    return Material(
-      color: Colors.white,
-      shape: const StadiumBorder(side: BorderSide(color: Color(0xFFD5E3F0))),
-      child: SizedBox(
-        height: 44,
-        child: TextField(
-          onTap: () => _toast('TODO: open route search'),
-          style: const TextStyle(fontSize: 13),
-          decoration: const InputDecoration(
-            hintText: 'Search destination, route, or stop',
-            hintStyle: TextStyle(fontSize: 13, color: Color(0xFF667085)),
-            prefixIcon: Icon(Icons.search, size: 20, color: Color(0xFF1261A6)),
-            prefixIconConstraints: BoxConstraints(minWidth: 44, minHeight: 44),
-            border: InputBorder.none,
-            isDense: true,
-            contentPadding: EdgeInsets.zero,
+    return Container(
+      height: 44,
+      padding: const EdgeInsets.symmetric(horizontal: 14),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(22),
+        border: Border.all(color: const Color(0xFFD5E3F0)),
+      ),
+      child: Row(
+        children: [
+          const Icon(Icons.search, size: 20, color: Color(0xFF1261A6)),
+          const SizedBox(width: 10),
+          Expanded(
+            child: TextField(
+              onTap: () => _toast('TODO: open route search'),
+              textAlign: TextAlign.start,
+              textAlignVertical: TextAlignVertical.center,
+              style: const TextStyle(fontSize: 13),
+              decoration: const InputDecoration(
+                hintText: 'Search destination, route, or stop',
+                hintStyle: TextStyle(fontSize: 13, color: Color(0xFF667085)),
+                border: InputBorder.none,
+                isCollapsed: true,
+              ),
+            ),
           ),
-        ),
+        ],
       ),
     );
   }
@@ -465,72 +474,19 @@ class _TerminalCardState extends State<_TerminalCard> {
   }
 }
 
-// Placeholder for the terminal map (grey-green tile with roads and a red pin).
-// Swap this for the real map widget later.
+// Blank container where the terminal map will go later.
 class _TerminalMapPlaceholder extends StatelessWidget {
   const _TerminalMapPlaceholder();
 
   @override
   Widget build(BuildContext context) {
-    return ClipRRect(
-      borderRadius: BorderRadius.circular(10),
-      child: SizedBox(
-        height: 112,
-        width: double.infinity,
-        child: Stack(
-          alignment: Alignment.center,
-          children: [
-            Positioned.fill(
-              child: CustomPaint(painter: _PlaceholderMapPainter()),
-            ),
-            const Padding(
-              padding: EdgeInsets.only(bottom: 18),
-              child: Icon(
-                Icons.location_on,
-                color: Color(0xFFD92D20),
-                size: 38,
-              ),
-            ),
-          ],
-        ),
+    return Container(
+      height: 112,
+      width: double.infinity,
+      decoration: BoxDecoration(
+        color: const Color(0xFFE3ECE5),
+        borderRadius: BorderRadius.circular(10),
       ),
     );
   }
-}
-
-class _PlaceholderMapPainter extends CustomPainter {
-  @override
-  void paint(Canvas canvas, Size size) {
-    canvas.drawRect(
-      Offset.zero & size,
-      Paint()..color = const Color(0xFFE3ECE5),
-    );
-    final road = Paint()
-      ..color = Colors.white
-      ..style = PaintingStyle.stroke
-      ..strokeWidth = 9
-      ..strokeCap = StrokeCap.round;
-    canvas.drawLine(
-      Offset(size.width * 0.22, 0),
-      Offset(size.width * 0.30, size.height),
-      road,
-    );
-    canvas.drawLine(
-      Offset(size.width * 0.70, 0),
-      Offset(size.width * 0.76, size.height),
-      road,
-    );
-    final curve = Path()
-      ..moveTo(0, size.height * 0.62)
-      ..quadraticBezierTo(
-        size.width * 0.5,
-        size.height * 0.40,
-        size.width,
-        size.height * 0.58,
-      );
-    canvas.drawPath(curve, road);
-  }
-
-  @override
-  bool shouldRepaint(covariant CustomPainter oldDelegate) => false;
 }
