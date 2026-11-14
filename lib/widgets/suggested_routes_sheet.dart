@@ -15,6 +15,7 @@ class _SuggestedRoutesSheetState extends State<SuggestedRoutesSheet> {
       transfers: 0,
       fare: 19,
       legs: ['Walk', 'Jeep', 'Walk'],
+      color: Color(0xFFF5C518),
     ),
     _SuggestedRoute(
       durationMinutes: 20,
@@ -22,6 +23,7 @@ class _SuggestedRoutesSheetState extends State<SuggestedRoutesSheet> {
       transfers: 2,
       fare: 39,
       legs: ['Walk', 'Jeep', 'E-bus', 'Walk'],
+      color: Color(0xFF65D957),
     ),
     _SuggestedRoute(
       durationMinutes: 25,
@@ -29,12 +31,14 @@ class _SuggestedRoutesSheetState extends State<SuggestedRoutesSheet> {
       transfers: 0,
       fare: 45,
       legs: ['Walk', 'Jeep', 'Walk'],
+      color: Color(0xFFB05AFF),
     ),
   ];
 
   static const _sortOptions = ['Fastest', 'Cheapest', 'Fewest Transfers'];
 
   int _selectedSort = 0;
+  _SuggestedRoute? _selectedRoute; // null = highlight the first card
 
   List<_SuggestedRoute> get _sortedRoutes {
     final routes = List<_SuggestedRoute>.of(_routes);
@@ -51,6 +55,9 @@ class _SuggestedRoutesSheetState extends State<SuggestedRoutesSheet> {
 
   @override
   Widget build(BuildContext context) {
+    final sorted = _sortedRoutes;
+    final selected = _selectedRoute ?? sorted.first;
+
     return DraggableScrollableSheet(
       expand: false,
       initialChildSize: 0.58,
@@ -66,7 +73,7 @@ class _SuggestedRoutesSheetState extends State<SuggestedRoutesSheet> {
           clipBehavior: Clip.antiAlias,
           child: ListView(
             controller: scrollController,
-            padding: const EdgeInsets.fromLTRB(12, 8, 12, 16),
+            padding: const EdgeInsets.fromLTRB(14, 8, 14, 16),
             children: [
               Center(
                 child: Container(
@@ -78,23 +85,31 @@ class _SuggestedRoutesSheetState extends State<SuggestedRoutesSheet> {
                   ),
                 ),
               ),
-              const SizedBox(height: 10),
+              const SizedBox(height: 12),
               Row(
                 children: [
                   for (var i = 0; i < _sortOptions.length; i++) ...[
-                    if (i > 0) const SizedBox(width: 5),
+                    if (i > 0) const SizedBox(width: 6),
                     Expanded(
                       child: _SortOption(
                         label: _sortOptions[i],
                         selected: _selectedSort == i,
-                        onTap: () => setState(() => _selectedSort = i),
+                        onTap: () => setState(() {
+                          _selectedSort = i;
+                          _selectedRoute = null;
+                        }),
                       ),
                     ),
                   ],
                 ],
               ),
-              const SizedBox(height: 10),
-              for (final route in _sortedRoutes) _RouteOptionCard(route: route),
+              const SizedBox(height: 12),
+              for (final route in sorted)
+                _RouteOptionCard(
+                  route: route,
+                  selected: identical(route, selected),
+                  onTap: () => setState(() => _selectedRoute = route),
+                ),
             ],
           ),
         );
@@ -124,21 +139,21 @@ class _SortOption extends StatelessWidget {
         ),
       ),
       child: InkWell(
+        customBorder: const StadiumBorder(),
         onTap: onTap,
-        borderRadius: BorderRadius.circular(24),
         child: SizedBox(
-          height: 30,
+          height: 32,
           child: Center(
             child: FittedBox(
               fit: BoxFit.scaleDown,
               child: Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 6),
+                padding: const EdgeInsets.symmetric(horizontal: 8),
                 child: Text(
                   label,
                   style: TextStyle(
                     color: selected ? Colors.white : Colors.black87,
-                    fontSize: 11,
-                    fontWeight: FontWeight.w600,
+                    fontSize: 12,
+                    fontWeight: FontWeight.w700,
                   ),
                 ),
               ),
@@ -151,108 +166,144 @@ class _SortOption extends StatelessWidget {
 }
 
 class _RouteOptionCard extends StatelessWidget {
-  const _RouteOptionCard({required this.route});
+  const _RouteOptionCard({
+    required this.route,
+    required this.selected,
+    required this.onTap,
+  });
 
   final _SuggestedRoute route;
+  final bool selected;
+  final VoidCallback onTap;
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      margin: const EdgeInsets.only(bottom: 8),
-      padding: const EdgeInsets.fromLTRB(9, 7, 8, 6),
-      decoration: BoxDecoration(
-        color: const Color(0xFFF0F4F8),
-        border: Border.all(color: const Color(0xFFD6E0E9)),
-        borderRadius: BorderRadius.circular(9),
-      ),
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        children: [
-          Container(
-            width: 3,
-            decoration: BoxDecoration(
-              color: route.color,
-              borderRadius: BorderRadius.circular(4),
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 10),
+      child: Material(
+        color: selected ? const Color(0xFFE3F0FD) : const Color(0xFFEEF3F8),
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(10),
+          side: BorderSide(
+            color: selected ? const Color(0xFF1261A6) : const Color(0xFFD6E0E9),
+            width: selected ? 1.4 : 1,
+          ),
+        ),
+        child: InkWell(
+          borderRadius: BorderRadius.circular(10),
+          onTap: onTap,
+          child: Padding(
+            padding: const EdgeInsets.fromLTRB(10, 10, 10, 8),
+            // IntrinsicHeight is required: a Row with `stretch` inside a
+            // ListView has unbounded height and would otherwise collapse/throw.
+            child: IntrinsicHeight(
+              child: Row(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  Container(
+                    width: 4,
+                    decoration: BoxDecoration(
+                      color: route.color,
+                      borderRadius: BorderRadius.circular(4),
+                    ),
+                  ),
+                  const SizedBox(width: 10),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Row(
+                          children: [
+                            Text(
+                              '${route.durationMinutes} min',
+                              style: const TextStyle(
+                                fontSize: 15,
+                                fontWeight: FontWeight.w700,
+                              ),
+                            ),
+                            const Spacer(),
+                            Text(
+                              '₱${route.fare}',
+                              style: const TextStyle(
+                                color: Color(0xFF1261A6),
+                                fontSize: 15,
+                                fontWeight: FontWeight.w800,
+                              ),
+                            ),
+                            const SizedBox(width: 6),
+                            const Icon(
+                              Icons.chevron_right,
+                              size: 18,
+                              color: Color(0xFF667085),
+                            ),
+                          ],
+                        ),
+                        const SizedBox(height: 2),
+                        Text(
+                          '${route.distanceKm.toStringAsFixed(1)} km · '
+                          '${route.transfers} transfers',
+                          style: const TextStyle(
+                            fontSize: 12,
+                            color: Color(0xFF475467),
+                          ),
+                        ),
+                        const SizedBox(height: 8),
+                        _RouteLegs(legs: route.legs),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
             ),
           ),
-          const SizedBox(width: 8),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Row(
-                  children: [
-                    Text(
-                      '${route.durationMinutes} min',
-                      style: const TextStyle(
-                        fontSize: 12,
-                        fontWeight: FontWeight.w700,
-                      ),
-                    ),
-                    const Spacer(),
-                    Text(
-                      '₱${route.fare}',
-                      style: const TextStyle(
-                        color: Color(0xFF1261A6),
-                        fontSize: 11,
-                        fontWeight: FontWeight.w700,
-                      ),
-                    ),
-                    const SizedBox(width: 3),
-                    const Icon(
-                      Icons.chevron_right,
-                      size: 16,
-                      color: Color(0xFF667085),
-                    ),
-                  ],
-                ),
-                const SizedBox(height: 1),
-                Text(
-                  '${route.distanceKm.toStringAsFixed(1)} km · '
-                  '${route.transfers} transfers',
-                  style: const TextStyle(fontSize: 9, color: Color(0xFF475467)),
-                ),
-                const SizedBox(height: 4),
-                _RouteLegs(legs: route.legs, color: route.color),
-              ],
-            ),
-          ),
-        ],
+        ),
       ),
     );
   }
 }
 
 class _RouteLegs extends StatelessWidget {
-  const _RouteLegs({required this.legs, required this.color});
+  const _RouteLegs({required this.legs});
 
   final List<String> legs;
-  final Color color;
+
+  static const _walkColor = Color(0xFFB4BBC6);
+  static const _rideColor = Color(0xFF1261A6);
 
   @override
   Widget build(BuildContext context) {
     return Row(
+      crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         for (var i = 0; i < legs.length; i++) ...[
           if (i > 0) const SizedBox(width: 4),
           Expanded(
-            flex: legs[i] == 'Jeep' || legs[i] == 'E-bus' ? 3 : 1,
+            flex: legs[i] == 'Walk' ? 1 : 3,
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Container(
-                  height: 3,
-                  decoration: BoxDecoration(
-                    color: legs[i] == 'Walk' ? const Color(0xFF98A2B3) : color,
-                    borderRadius: BorderRadius.circular(3),
+                // Explicit width/height + DecoratedBox so the bar always
+                // paints, even inside loose Column constraints.
+                SizedBox(
+                  width: double.infinity,
+                  height: 4,
+                  child: DecoratedBox(
+                    decoration: BoxDecoration(
+                      color: legs[i] == 'Walk' ? _walkColor : _rideColor,
+                      borderRadius: BorderRadius.circular(4),
+                    ),
                   ),
                 ),
-                const SizedBox(height: 2),
+                const SizedBox(height: 4),
                 Text(
                   legs[i],
                   maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                  style: const TextStyle(fontSize: 8, color: Color(0xFF475467)),
+                  softWrap: false,
+                  overflow: TextOverflow.visible,
+                  style: const TextStyle(
+                    fontSize: 11,
+                    color: Color(0xFF475467),
+                  ),
                 ),
               ],
             ),
@@ -270,6 +321,7 @@ class _SuggestedRoute {
     required this.transfers,
     required this.fare,
     required this.legs,
+    required this.color,
   });
 
   final int durationMinutes;
@@ -277,15 +329,5 @@ class _SuggestedRoute {
   final int transfers;
   final int fare;
   final List<String> legs;
-
-  Color get color {
-    switch (durationMinutes) {
-      case 15:
-        return const Color(0xFF1683E8);
-      case 20:
-        return const Color(0xFF65D957);
-      default:
-        return const Color(0xFFB05AFF);
-    }
-  }
+  final Color color; // accent stripe on the left of the card
 }
