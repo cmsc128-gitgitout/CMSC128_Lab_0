@@ -24,7 +24,7 @@
       "is_terminal": false
     },
     "S04": {
-      "name": "WVSU (Luna St.)",
+      "name": "WVSU",
       "lat": 10.713761065767988,
       "lng": 122.56229925193936,
       "is_terminal": false
@@ -37,7 +37,7 @@
     },
     "S06": {
       "name": "Atrium Mall",
-      "lat": 10.724487119612382,
+      "lat": 10.724566708695146,
       "lng": 122.55811160193946,
       "is_terminal": false
     },
@@ -51,7 +51,7 @@
       "name": "Iloilo Central Market",
       "lat": 10.692634253258415,
       "lng": 122.57018943844558,
-      "is_terminal": false
+      "is_terminal": true
     },
     "S09": {
       "name": "Ungka Terminal",
@@ -60,7 +60,7 @@
       "is_terminal": true
     },
     "S10": {
-      "name": "CPU (Lopez Jaena St.)",
+      "name": "CPU",
       "lat": 10.729433456106213,
       "lng": 122.54913025193932,
       "is_terminal": false
@@ -70,46 +70,393 @@
       "lat": 10.692623,
       "lng": 122.573722,
       "is_terminal": false
+    },
+    "S12": {
+      "name": "Iloilo Supermart Jaro",
+      "lat": 10.73347222976698,
+      "lng": 122.56054264078169,
+      "is_terminal": false
+    },
+    "S13": {
+      "name": "University of San Agustin",
+      "lat": 10.699541152390923,
+      "lng": 122.5629295115001,
+      "is_terminal": false
+    },
+    "S14": {
+      "name": "Super (Mabini St.",
+      "lat": 10.693332359581875, 
+      "lng": 122.56475352922178,
+      "is_terminal": false
+    },
+    "S15": {
+      "name": "UI",
+      "lat": 10.691926471008676,
+      "lng":  122.56959710164693,
+      "is_terminal": false
+    },
+    "S16": {
+      "name": "Goldberry Hotel",
+      "lat": 10.692182010142075, 
+      "lng": 122.57091069727755,
+      "is_terminal": false
+    },
+    "S17": {
+      "name": "Sta. Teresita Church",
+      "lat": 10.693133499106056, 
+      "lng": 122.56665347796249,
+      "is_terminal": false
+    },
+    "S18": {
+      "name": "Ledi Supermart (De Leon St.",
+      "lat": 10.69386289901191,
+      "lng": 122.56675750144265,
+      "is_terminal": false
+    },
+    "S19": {
+      "name": "Marymart (Valeria St.",
+      "lat": 10.697668582661969, 
+      "lng": 122.56788713767637,
+      "is_terminal": false
+    },
+
+    "S21": {
+      "name": "WIT",
+      "lat": 10.711226501072469, 
+      "lng": 122.56597073844625,
+      "is_terminal": false
+    },
+    "S22": {
+      "name": "Iloilo-Jorda Roro Port",
+      "lat": 10.702311454762476,
+      "lng": 122.57788056429901,
+      "is_terminal": true
+    },
+    "S23": {
+      "name": "Washington Supermart",
+      "lat": 10.694112124417023,
+      "lng": 122.57084190884001,
+      "is_terminal": false
+    },
+    "S24": {
+      "name": "Iloilo Sun Yat Sen high school",
+      "lat": 10.692968699872116, 
+      "lng": 122.57106655116921,
+      "is_terminal": false
+    },
+    "S25": {
+      "name": "Saint Clements Church",
+      "lat": 10.710205921367816,
+      "lng": 122.56524923776065,
+      "is_terminal": false
+    },
+    "S26": {
+      "name": "Robinsons Jaro",
+      "lat": 10.721285696412128,
+      "lng": 122.5584971116242,
+      "is_terminal": false
+    },
+    "S27": {
+      "name": "Citadines",
+      "lat": 10.698371297613654,
+      "lng": 122.56862843767615,
+      "is_terminal": false
+    },
+    "S28": {
+      "name": "Iloilo Ferry Terminal-Parola",
+      "lat": 10.695897738056829,
+      "lng": 122.5825744482621,
+      "is_terminal": true
+    },
+    "S29": {
+      "name": "City Square (JM Base St.)",
+      "lat": 10.695144693859016,
+      "lng": 122.5707221405242,
+      "is_terminal": false
+    },
+    "S31": {
+      "name": "PSA (Iznart ST.)",
+      "lat": 10.698409271061339, 
+      "lng": 122.56948624634262,
+      "is_terminal": false
+    },
+    "S32": {
+      "name": "La Paz Market",
+      "lat": 10.708953155038316,
+      "lng": 122.56764532418349,
+      "is_terminal": false
+    },
+    "S33": {
+      "name": "Ceres Terminal, MacArthur Dr.",
+      "lat": 10.761971464470763,
+      "lng": 122.57144776566172,
+      "is_terminal": true
+    },
+    "S34": {
+      "name": "WVSU-MC",
+      "lat": 10.716135281513521, 
+      "lng": 122.56132212603382,
+      "is_terminal": false
+    },
+    "S35": {
+      "name": "Gaisano City (Luna st.",
+      "lat": 10.706825290659745, 
+      "lng": 122.56670757991564,
+      "is_terminal": false
+    },
+    "S36": {
+      "name": "Festive Walk",
+      "lat": 10.713551058563608, 
+      "lng": 122.54599558000439,
+      "is_terminal": false
+    },
+    "S37": {
+      "name": "Iloilo Integrated School",
+      "lat": 10.718971776319757, 
+      "lng": 122.54910900111503,
+      "is_terminal": false
+    },
+    "S38": {
+      "name": "SM City",
+      "lat": 10.743325552498632, 
+      "lng": 122.55079483700064,
+      "is_terminal": false
+    },
+    "S39": {
+      "name": "Iloilo Doctors Hospital",
+      "lat": 10.697212780909457, 
+      "lng": 122.5544034580006,
+      "is_terminal": false
+    },
+    "S40": {
+      "name": "Colegio de las Hijas",
+      "lat": 10.694824017667091,
+      "lng": 122.56256870045809,
+      "is_terminal": false
+    },
+    "S41": {
+      "name": "SM Delgado",
+      "lat": 10.698723482147534,
+      "lng": 122.56715416651149,
+      "is_terminal": true
+    },
+    "S42": {
+      "name": "Gaisano ICC",
+      "lat": 10.709959502518187, 
+      "lng": 122.55366436651202,
+      "is_terminal": false
+    },
+    "S44": {
+      "name": "Palladium (Megaworld ave.)",
+      "lat": 10.720791333267215,
+      "lng": 122.54908103528885,
+      "is_terminal": true
+    },
+    "S45": {
+      "name": "Carlo's bakeshop (Airport Spur Road)",
+      "lat": 10.725012084397166,
+      "lng": 122.54923428213526,
+      "is_terminal": true
     }
   },
+
+
+
+
+
+
+
+
 
 
   "routes": {
     "R01": {
       "route_no": "JR10",
-      "name": "Buntatala / Tagbak to City Proper",
+      "name": "Buntatala / Tagbak to Iloilo City Proper",
+      "route_class": "Rationalized",
       "tmode_id": "M1",
       "direction": "going",
       "is_active": true,
       "length_km": 11.84,
       "stop_ids": [
-        "S01",
-        "S02",
-        "S03",
-        "S04",
-        "S05",
-        "S06",
-        "S07",
+        "S01",  
+        "S12",  
+        "S02", 
+        "S03",  
+        "S04",   
+        "S05",  
+        "S06",  
+        "S13",  
+        "S14",  
+        "S07",  
+        "S15",  
+        "S16",
         "S08"
       ],
       "path": []
     },
-    
+
+
     "R02": {
+      "route_no": "JR10",
+      "name": "Iloilo City Proper to Buntatala / Tagbak",
+      "route_class": "Rationalized",
+      "tmode_id": "M1",
+      "direction": "returning",
+      "is_active": true,
+      "length_km": 11.84,
+      "stop_ids": [
+        "S08",  
+        "S17",  
+        "S18",  
+        "S19",
+        "S06",  
+        "S20",  
+        "S21",  
+        "S34",  
+        "S03",  
+        "S02",  
+        "S12",  
+        "S01"
+      ],
+      "path": []
+    },
+
+
+
+    "R03": {
+      "route_no": "JR01",
+      "name": "Buntatala / Tagbak to Iloilo City Proper via Lapuz",
+      "route_class": "New/Developmental",
+      "tmode_id": "M1",
+      "direction": "going",
+      "is_active": true,
+      "length_km": 11.31,
+      "stop_ids": [
+        "S01",  
+        "S33",  
+        "S22",  
+        "S23",  
+        "S24",  
+        "S15",  
+        "S08"
+      ],
+      "path": []
+    },
+
+    "R04": {
+      "route_no": "JR01",
+      "name": "Iloilo City Proper to Buntatala / Tagbak via Lapuz",
+      "route_class": "New/Developmental",
+      "tmode_id": "M1",
+      "direction": "returning",
+      "is_active": true,
+      "length_km": 11.31,
+      "stop_ids": [
+        "S08",  
+        "S22",  
+        "S33",  
+        "S01"
+
+      ],
+      "path": []
+    },
+
+
+
+
+
+
+    
+    "R05": {
       "route_no": "JR03",
       "name": "Ungka to Iloilo City Proper via CPU",
+      "route_class": "Rationalized",
       "tmode_id": "M1",
       "direction": "going",
       "is_active": true,
       "length_km": 9.33,
       "stop_ids": [
-        "S09",
-        "S10",
-        "S02",
-        "S05",
-        "S11"
+        "S09", 
+        "S10", 
+        "S02", 
+        "S26", 
+        "S25", 
+        "S05", 
+        "S27", 
+        "S11", 
+        "S28"
+      ],
+      "path": []
+    },
+
+
+    "R06": {
+      "route_no": "JR03",
+      "name": "Iloilo City Proper to Ungka via CPU",
+      "route_class": "Rationalized",
+      "tmode_id": "M1",
+      "direction": "returning",
+      "is_active": true,
+      "length_km": 9.33,
+      "stop_ids": [
+
+        "S28", 
+        "S29", 
+        "S31",  
+        "S05", 
+        "S35", 
+        "S32", 
+        "S02", 
+        "S09"
+      ],
+      "path": []
+    },
+
+
+    "R07": {
+      "route_no": "JR04",
+      "name": "Ungka to Iloilo City Proper via Aquino Avenue/Festive Walk",
+      "route_class": "Rationalized",
+      "tmode_id": "M1",
+      "direction": "going",
+      "is_active": true,
+      "length_km": 9.65,
+      "stop_ids": [
+
+        "S09", 
+        "S36", 
+        "S37", 
+        "S38", 
+        "S39",  
+        "S40",  
+        "S07",  
+        "S14",  
+        "S19",  
+        "S41"
+      ],
+      "path": []
+    },
+
+    "R08": {
+      "route_no": "JR04",
+      "name": "Iloilo City Proper to Ungka via Aquino Avenue/Festive Walk",
+      "route_class": "Rationalized",
+      "tmode_id": "M1",
+      "direction": "returning",
+      "is_active": true,
+      "length_km": 9.65,
+      "stop_ids": [
+        "S41",  
+        "S42",  
+        "S44",  
+        "S45", 
+        "S09"
+
+
       ],
       "path": []
     }
+
   }
 }
