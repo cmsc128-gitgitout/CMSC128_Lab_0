@@ -15,11 +15,14 @@ async function main() {
   const batch = db.batch();
   let count = 0;
 
-  for (const [collection, docs] of Object.entries(data)) {
+for (const [collection, docs] of Object.entries(data)) {
     for (const [id, fields] of Object.entries(docs)) {
       const doc = { ...fields };
       if (collection === 'routes') {
         doc.last_verified = Timestamp.now();
+        if (Array.isArray(doc.path)) {
+          doc.path = doc.path.map(([lng, lat]) => ({ lng, lat }));
+        }
       }
       batch.set(db.collection(collection).doc(id), doc);
       count++;
