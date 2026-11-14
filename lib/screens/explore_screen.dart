@@ -4,6 +4,7 @@ import '../widgets/ai_assistant_button.dart';
 import '../widgets/map_buttons.dart';
 import '../widgets/iloilo_map.dart';
 import '../widgets/search_pill.dart';
+import 'plan_trip_screen.dart';
 
 class ExploreScreen extends StatefulWidget {
   const ExploreScreen({super.key});
@@ -35,7 +36,10 @@ class _ExploreScreenState extends State<ExploreScreen> {
             padding: const EdgeInsets.fromLTRB(16, 50, 16, 0),
             child: SearchPill(
               hint: 'Where to?',
-              onTap: () => _toast(context, 'TODO: open destination search'),
+              // Open the plan trip screen
+              onTap: () => Navigator.of(context).push(
+                MaterialPageRoute(builder: (_) => const PlanTripScreen()),
+              ),
             ),
           ),
         ),
@@ -73,7 +77,10 @@ class _ExploreScreenState extends State<ExploreScreen> {
                 MapButton(
                   icon: Icons.directions_outlined,
                   tooltip: 'Directions',
-                  onPressed: () => _toast(context, 'TODO: open directions'),
+                  // Open the plan trip screen
+                  onPressed: () => Navigator.of(context).push(
+                    MaterialPageRoute(builder: (_) => const PlanTripScreen()),
+                  ),
                 ),
               ],
             ),
