@@ -224,6 +224,7 @@ class _RouteCardState extends State<RouteCard> {
             alignment: Alignment.topCenter,
             child: _expanded
                 ? Column(
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
                     children: [
                       const Divider(height: 1, color: Color(0xFFE8EDF2)),
                       _buildDetails(),
