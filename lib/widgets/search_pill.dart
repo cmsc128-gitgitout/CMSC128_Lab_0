@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 
+import '../utils/app_theme.dart';
+
 // homescreen search bar
 class SearchPill extends StatelessWidget {
   const SearchPill({
@@ -24,35 +26,32 @@ class SearchPill extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final scheme = Theme.of(context).colorScheme;
-
     return Material(
-      color: scheme.surfaceContainerHigh,
-      elevation: 2,
+      color: Colors.white,
+      elevation: 4,
       shadowColor: Colors.black38,
-      borderRadius: BorderRadius.circular(28),
+      shape: const StadiumBorder(),
       child: Container(
         height: 52,
-        padding: const EdgeInsets.symmetric(horizontal: 16),
+        padding: const EdgeInsets.symmetric(horizontal: 20),
         alignment: Alignment.center,
         child: TextField(
           controller: controller,
           onChanged: onChanged,
           onTap: onTap,
           style: TextStyle(
-            fontSize: 16,
-            color: scheme.onSurface,
-          ),
-
+            fontSize: 16, 
+            fontWeight: FontWeight.w600,
+            color: Colors.black87),
           decoration: InputDecoration(
             hintText: hint,
-
-            hintStyle: TextStyle(
+            hintStyle: const TextStyle(
               fontSize: 16,
-              color: scheme.onSurfaceVariant.withOpacity(0.6),
+              fontWeight: FontWeight.w600,
+              color: Color(0xFF5F6368),
             ),
 
-            icon: Icon(Icons.search, color: scheme.onSurface),
+            icon: const Icon(Icons.search, size: 26, color: AppTheme.primary),
             border: InputBorder.none,
             isDense: true,
             contentPadding: EdgeInsets.zero,
