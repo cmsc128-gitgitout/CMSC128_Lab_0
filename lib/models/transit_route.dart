@@ -12,12 +12,15 @@ class TransitRoute {
     required this.direction,
     required this.transportModeId,
     required this.stopIds,
+
+    this.path = const [],
     this.lengthKm,
     this.lastVerified,
     this.isActive = true,
   });
 
   final String id; // document id
+  final List<List<double>> path; //[lng, lat] format same w mapbox
   final String routeNo; // official LTFRB route number
   final String name;
   final String direction; // going or returning
@@ -27,7 +30,19 @@ class TransitRoute {
   final DateTime? lastVerified;
   final bool isActive;
 
-  factory TransitRoute.fromMap(String id, Map<String, dynamic> map) {
+
+
+factory TransitRoute.fromMap(String id, Map<String, dynamic> map) {
+    // convert firestore  maps to [ array pairs for mapbox
+    final rawPath = map['path'] as List? ?? [];
+    final List<List<double>> parsedPath = [];
+    for (final item in rawPath){
+      final point = item as Map<String, dynamic>;
+      final double lng = point['lng'].toDouble();
+      final double lat = point['lat'].toDouble();
+      parsedPath.add([lng, lat]);
+    }
+
     return TransitRoute(
       id: id,
       routeNo: map['route_no'] as String,
@@ -38,6 +53,7 @@ class TransitRoute {
       lengthKm: (map['length_km'] as num?)?.toDouble(),
       lastVerified: parseDateTime(map['last_verified']),
       isActive: map['is_active'] as bool? ?? true,
+      path: parsedPath,
     );
   }
 
