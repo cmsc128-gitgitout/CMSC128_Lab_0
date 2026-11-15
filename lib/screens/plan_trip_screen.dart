@@ -273,7 +273,7 @@ class _PlanTripScreenState extends State<PlanTripScreen> {
                           hint: 'Start location', 
                           icon: Icons.circle, 
                           iconSize: 12,
-                          iconColor: AppTheme.primary,
+                          iconColor: AppTheme.primary, 
                           onChanged: (_) => setState(() => _origin = null),         // origin field
                         ),
                         const SizedBox(height: 10),
@@ -283,6 +283,7 @@ class _PlanTripScreenState extends State<PlanTripScreen> {
                           hint: 'Where to?', 
                           icon: Icons.location_on_outlined,
                           iconColor: const Color(0xFFD32F2F),
+                          autofocus: true,            
                           onChanged: (_) => setState(() => _destination = null),    // destination field
                         ),
                       ],

@@ -13,6 +13,7 @@ class LocationField extends StatelessWidget {
     required this.icon,
     required this.iconColor,
     this.iconSize = 24,
+    this.autofocus = false,
     this.onChanged,
   });
 
@@ -22,7 +23,8 @@ class LocationField extends StatelessWidget {
   final IconData icon;
   final Color iconColor;
   final double iconSize;
-  final ValueChanged<String>? onChanged; // fires on typing only
+  final bool autofocus;                   // focus and open the keyboard when first shown
+  final ValueChanged<String>? onChanged;  // fires on typing only
 
   @override
   Widget build(BuildContext context) {
@@ -30,6 +32,7 @@ class LocationField extends StatelessWidget {
     return TextField(
       controller: controller,
       focusNode: focusNode,
+      autofocus: autofocus,
       onChanged: onChanged,
       decoration: InputDecoration(
         hintText: hint,
