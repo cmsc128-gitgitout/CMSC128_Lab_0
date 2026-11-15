@@ -10,19 +10,14 @@ class SearchPill extends StatelessWidget {
     this.controller,
     this.onChanged,
     this.onTap,
+    this.readOnly = false,
   });
 
-  // Placeholder text displayed when input is empty
-  final String hint;
-
-  // Controller to manage and retrieve typed text
-  final TextEditingController? controller;
-
-  // Callback triggered whenever the user types or edits text
-  final ValueChanged<String>? onChanged;
-
-  // Callback triggered when the text field gains focus or is tapped
-  final VoidCallback? onTap;
+  final String hint;                        // Placeholder text displayed when input is empty
+  final TextEditingController? controller;  // Controller to manage and retrieve typed text
+  final ValueChanged<String>? onChanged;    // Callback triggered whenever the user types or edits text
+  final VoidCallback? onTap;                // Callback triggered when the text field gains focus or is tapped
+  final bool readOnly;                      // Since there's a search pill in homescreen, but typing only happens in plan a trip screen
 
   @override
   Widget build(BuildContext context) {
@@ -37,6 +32,7 @@ class SearchPill extends StatelessWidget {
         alignment: Alignment.center,
         child: TextField(
           controller: controller,
+          readOnly: readOnly,
           onChanged: onChanged,
           onTap: onTap,
           style: TextStyle(
