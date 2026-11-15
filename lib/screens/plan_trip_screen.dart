@@ -1,8 +1,17 @@
 import 'package:flutter/material.dart';
-import '../utils/app_theme.dart';
-import '../widgets/location_field.dart';
+import 'package:provider/provider.dart';
 
-// import 'choose_on_map_screen.dart';
+import '../utils/app_theme.dart';
+import '../models/boarding_point.dart';
+import '../providers/transit_provider.dart';
+import '../widgets/location_field.dart';
+import '../widgets/place_tile.dart';
+import '../widgets/search_section_label.dart';
+import 'choose_on_map_screen.dart';
+
+// Placeholder recents (boarding point ids) until previous searches are stored. 
+// TODO: replace with real search history.
+const _placeholderRecentIds = ['S26', 'S38']; // Robinsons Jaro, SM City
 
 // Which of the two inputs the user is currently editing.
 enum _Field { origin, destination }
@@ -67,10 +76,81 @@ class _PlanTripScreenState extends State<PlanTripScreen> {
     });
   }
 
+  // What the user typed in the active field.
+  String get _query => _activeCtrl.text.trim();
+
+  // Second line under a stop's name: terminal flag or the modes serving it.
+  String _detailFor(TransitProvider transit, BoardingPoint stop) {
+    if (stop.isTerminal) return 'Terminal';
+    final modes = transit.modeNamesServing(stop.id);
+    return modes.isEmpty ? 'Boarding point' : modes.join(' · ');
+  }
+
+  // Recents shown while the active field is empty.
+  List<BoardingPoint> _recents(TransitProvider transit) => _placeholderRecentIds
+      .map(transit.stopById)
+      .whereType<BoardingPoint>()
+      .toList();
+
+  // Live suggestions: stops whose name contains the typed text. 
+  // Matching recents come first so they keep their clock icon.
+  // Local filtering for now; this is the place to swap in a real places search later.
+
+  List<BoardingPoint> _search(TransitProvider transit, String query) {
+    final q = query.toLowerCase();
+    final matches =
+        transit.boardingPoints.where((p) => p.name.toLowerCase().contains(q));
+    final recent = matches.where((p) => _placeholderRecentIds.contains(p.id));
+    final others = matches.where((p) => !_placeholderRecentIds.contains(p.id));
+    return [...recent, ...others];
+  }
+
+  // Opens the map pin picker. 
+  // The skeleton screen does not return a location yet. 
+  // TODO: Handle its result here once it does (a pin is not a BoardingPoint, so that needs the wider shared place model).
+  void _chooseOnMap() {
+    Navigator.of(context).push(
+      MaterialPageRoute(builder: (_) => const ChooseOnMapScreen()),
+    );
+  }
+
+  // Container below the fields:
+  // - field empty: recents
+  // - user typing: live suggestions (recents are hidden; matching ones are mixed into suggestions)
+  Widget _buildResults(TransitProvider transit) {
+    final isTyping = _query.isNotEmpty;
+    final stops = isTyping ? _search(transit, _query) : _recents(transit);
+
+    return ListView(
+      padding: EdgeInsets.zero,
+      // Hide the keyboard when the user scrolls the list.
+      keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
+      children: [
+        // Always available, in every state.
+        ListTile(
+          leading: const Icon(Icons.map_outlined, color: AppTheme.primary),
+          title: const Text('Choose on map'),
+          onTap: _chooseOnMap,
+        ),
+        const Divider(height: 1),
+
+        SectionLabel(isTyping ? 'SUGGESTIONS' : 'RECENT'),
+        for (final stop in stops)
+          PlaceTile(
+            name: stop.name,
+            detail: _detailFor(transit, stop),
+            isRecent: _placeholderRecentIds.contains(stop.id),
+            onTap: () {}, // wired in a later commit
+          ),
+      ],
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
+    final transit = context.watch<TransitProvider>();
+
     return Scaffold(
-      appBar: AppBar(title: const Text('Plan your trip')),
       backgroundColor: Colors.white,
       body: SafeArea(
         child: Column(
@@ -108,6 +188,7 @@ class _PlanTripScreenState extends State<PlanTripScreen> {
                           icon: Icons.circle, 
                           iconSize: 12,
                           iconColor: AppTheme.primary,
+                          onChanged: (_) => setState(() {}),
                         ),
                         const SizedBox(height: 10),
                         LocationField(
@@ -116,6 +197,7 @@ class _PlanTripScreenState extends State<PlanTripScreen> {
                           hint: 'Where to?', 
                           icon: Icons.location_on_outlined,
                           iconColor: const Color(0xFFD32F2F),
+                          onChanged: (_) => setState(() {}),
                         ),
                       ],
                     ),
@@ -135,39 +217,10 @@ class _PlanTripScreenState extends State<PlanTripScreen> {
             ),
 
             // The results container (recents / suggestions) goes here.
-            const Spacer(),
+            Expanded(child: _buildResults(transit)),
           ],
         ),
       ),
     );
   }
 }
-
-//       body: ListView(
-//         padding: const EdgeInsets.all(16),
-//         children: [
-//           // Start location input
-//           TextField(decoration: InputDecoration(hintText: 'Start location')),
-//           SizedBox(height: 12),
-
-//           // Destination input
-//           TextField(decoration: InputDecoration(hintText: 'Where to?')),
-//           SizedBox(height: 12),
-
-//           // Opens the map pin picker (wired up in a later commit)
-//           ListTile(
-//             leading: Icon(Icons.map_outlined),
-//             title: Text('Choose on map'),
-//             onTap: () => Navigator.of(context).push(
-//               MaterialPageRoute(builder: (_) => const ChooseOnMapScreen()),
-//             ),
-//           ),
-
-//           // List sections (placeholders)
-//           Text('SUGGESTIONS'),
-//           Text('RECENT'),
-//         ],
-//       ),
-//     );
-//   }
-// }
