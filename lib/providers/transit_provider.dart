@@ -16,15 +16,72 @@ class TransitProvider extends ChangeNotifier {
   Map<String, TransportMode> _modes = {};
   Map<String, BoardingPoint> _points = {};
   List<TransitRoute> _routes = [];
-
   bool get isLoading => _isLoading;
   String? get error => _error;
+
+  String _searchQuery = '';
   List<TransitRoute> get routes => _routes;
+  String get searchQuery => _searchQuery;
+
+  List<TransitRoute> get goingRoutes => _routes.where((r) => r.direction == 'going').toList();
+
+  List<TransitRoute> get returningRoutes => _routes.where((r) => r.direction == 'returning').toList();
+
 
   // Boarding points flagged as terminals, sorted by name.
   List<BoardingPoint> get terminals =>
       (_points.values.where((p) => p.isTerminal).toList())
         ..sort((a, b) => a.name.compareTo(b.name));
+
+
+
+  void setSearchQuery(String query) {
+      if (_searchQuery == query) return;
+      _searchQuery = query;
+      notifyListeners();
+    }
+
+
+  void clearSearch() {
+    if (_searchQuery.isEmpty) return;
+    _searchQuery = '';
+    notifyListeners();
+  }
+
+// filter by route number, route name, transport mode, or stops 
+  List<TransitRoute> get filteredRoutes {
+    final q = _searchQuery.trim().toLowerCase();
+    if (q.isEmpty) return _routes;
+
+    final keywords = q.split(RegExp(r'\s+'));
+    return _routes.where((route) {
+      final no = route.routeNo.toLowerCase();
+      final name = route.name.toLowerCase();
+      final mode = modeName(route.transportModeId).toLowerCase();
+      final stops = route.stopIds.map((id) =>stopName(id).toLowerCase()).toList();
+
+      return keywords.every((word) =>
+          no.contains(word) ||
+          name.contains(word) ||
+          mode.contains(word) ||
+          stops.any((s) => s.contains(word)));
+    }).toList();
+  }
+
+  // filter by stops
+  List<BoardingPoint> get filteredStops {
+    final q = _searchQuery.trim().toLowerCase();
+    if (q.isEmpty) return [];
+
+    final keywords = q.split(RegExp(r'\s+'));
+
+    return (_points.values.where((p) {
+      final name = p.name.toLowerCase();
+      return keywords.every((word) => name.contains(word));
+    }).toList())
+      ..sort((a, b) => a.name.compareTo(b.name));
+  }
+
 
   // Loads everything from Firestore. Also used for "Try again".
   Future<void> load() async {
@@ -33,15 +90,17 @@ class TransitProvider extends ChangeNotifier {
     notifyListeners();
 
     try {
-      final (modes, points, routes) = await (
+      final (modes, points, going, returning) = await (
         _service.fetchTransportModes(),
         _service.fetchBoardingPoints(),
-        _service.fetchRoutes(),
+        _service.fetchGoingRoutes(),
+        _service.fetchReturningRoutes(),
       ).wait;
 
       _modes = {for (final m in modes) m.id: m};
       _points = {for (final p in points) p.id: p};
-      _routes = routes..sort((a, b) => a.routeNo.compareTo(b.routeNo));
+      _routes = [...going, ...returning]
+        ..sort((a, b) => a.routeNo.compareTo(b.routeNo));
     } catch (e) {
       debugPrint('TransitProvider.load failed: $e');
       _error = 'Could not load data. Check your connection and try again.';

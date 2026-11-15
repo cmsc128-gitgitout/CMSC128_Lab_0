@@ -13,7 +13,6 @@ class TransitRoute {
     required this.direction,
     required this.transportModeId,
     required this.stopIds,
-
     required this.duration,
     required this.minFare,
 
@@ -40,6 +39,7 @@ class TransitRoute {
   final double minFare;
 
 
+
 factory TransitRoute.fromMap(String id, Map<String, dynamic> map) {
     // convert firestore arr containing  maps to [ array pairs for mapbox 
     final pathForMapbox = map['path'] as List? ?? [];
@@ -60,6 +60,7 @@ factory TransitRoute.fromMap(String id, Map<String, dynamic> map) {
       // }
       final double lng = lngRaw.toDouble();
       final double lat = latRaw.toDouble();
+
       parsedPath.add([lng, lat]);
     }
 
@@ -74,7 +75,6 @@ factory TransitRoute.fromMap(String id, Map<String, dynamic> map) {
       lastVerified: parseDateTime(map['last_verified']),
       isActive: map['is_active'] as bool? ?? true,
       path: parsedPath,
-
       duration: (map['duration'] as num?)?.toInt() ?? 0,
       minFare: (map['min_fare'] as num?)?.toDouble() ?? 0.0,
     );
