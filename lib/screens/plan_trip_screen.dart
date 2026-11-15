@@ -34,6 +34,8 @@ class _PlanTripScreenState extends State<PlanTripScreen> {
   // The field the list below belongs to. Follows focus.
   _Field _active = _Field.destination;
 
+  // Runs once when the screen opens. 
+  // Sets up the listeners that keep _active in sync with whichever field has focus.
   @override
   void initState() {
     super.initState();
@@ -47,6 +49,8 @@ class _PlanTripScreenState extends State<PlanTripScreen> {
     });
   }
 
+  // Runs when the screen closes.
+  // Controllers and focus nodes must be disposed manually, or they leak memory.
   @override
   void dispose() {
     _originCtrl.dispose();
@@ -56,10 +60,11 @@ class _PlanTripScreenState extends State<PlanTripScreen> {
     super.dispose();
   }
 
+  // Controller of the field the user is currently editing.
   TextEditingController get _activeCtrl =>
       _active == _Field.origin ? _originCtrl : _destCtrl;
 
-  // Sets a field's text and keeps the cursor at the end.
+  // Sets a field's text and keeps the cursor at the end (Assigning controller.text directly can reset the cursor position)
   void _setText(TextEditingController ctrl, String text) {
     ctrl.value = TextEditingValue(
       text: text,
