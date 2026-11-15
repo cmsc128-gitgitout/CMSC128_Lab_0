@@ -137,16 +137,29 @@ class _PlanTripScreenState extends State<PlanTripScreen> {
           title: const Text('Choose on map'),
           onTap: _chooseOnMap,
         ),
+        
         const Divider(height: 1),
 
-        SectionLabel(isTyping ? 'SUGGESTIONS' : 'RECENT'),
-        for (final stop in stops)
+        if (isTyping && stops.isEmpty)
+          const Padding(
+            padding: EdgeInsets.all(24),
+            child: Center(
+              child: Text(
+                'No places found', 
+                style: TextStyle(color: Color(0xFF5F6368))
+              ),
+            ),
+          )
+        else ...[
+          SectionLabel(isTyping ? 'SUGGESTIONS' : 'RECENT'),
+          for (final stop in stops)
           PlaceTile(
             name: stop.name,
             detail: _detailFor(transit, stop),
             isRecent: _placeholderRecentIds.contains(stop.id),
             onTap: () {}, // wired in a later commit
           ),
+        ]
       ],
     );
   }
