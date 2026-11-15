@@ -1,4 +1,5 @@
 import 'package:flutter/foundation.dart';
+import 'package:shared_preferences/shared_preferences.dart'; // for local storage
 
 import '../models/boarding_point.dart';
 import '../models/transit_route.dart';
@@ -22,6 +23,11 @@ class TransitProvider extends ChangeNotifier {
   String _searchQuery = '';
   List<TransitRoute> get routes => _routes;
   String get searchQuery => _searchQuery;
+
+  
+  static const _recentKey = 'recent_searches'; //use for reading/writing list on device 
+  List<String> _recentSearches = []; //holds list
+  List<String> get recentSearches => _recentSearches; 
 
   List<TransitRoute> get goingRoutes => _routes.where((r) => r.direction == 'going').toList();
 
@@ -47,6 +53,39 @@ class TransitProvider extends ChangeNotifier {
     _searchQuery = '';
     notifyListeners();
   }
+
+  // save when user submits search
+  Future<void> addRecentSearch(String query) async {
+    final trimmed = query.trim();
+    if (trimmed.isEmpty) return; //not inckyde if empty
+
+    _recentSearches.removeWhere((s) => s.toLowerCase() == trimmed.toLowerCase()); //handle duplicatess
+    _recentSearches.insert(0, trimmed); 
+    if (_recentSearches.length > 7) { //only show till 7 676767
+      _recentSearches = _recentSearches.sublist(0, 7);
+    }
+
+    notifyListeners();
+    //opnes connnection to device then overwrtie recent searches
+    final prefs = await SharedPreferences.getInstance();  
+    await prefs.setStringList(_recentKey, _recentSearches);
+  }
+
+  //clear all
+  Future<void> clearRecentSearches() async {
+  _recentSearches.clear();
+  notifyListeners();
+  final prefs = await SharedPreferences.getInstance();
+  await prefs.remove(_recentKey);
+  }
+  Future<void> removeRecentSearch(String query) async {
+    _recentSearches.remove(query);
+    notifyListeners();
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setStringList(_recentKey, _recentSearches);
+  }
+
+
 
 // filter by route number, route name, transport mode, or stops 
   List<TransitRoute> get filteredRoutes {
@@ -90,6 +129,10 @@ class TransitProvider extends ChangeNotifier {
     notifyListeners();
 
     try {
+      //load recent searches
+      final prefs = await SharedPreferences.getInstance();
+      _recentSearches = prefs.getStringList(_recentKey) ?? [];
+
       final (modes, points, going, returning) = await (
         _service.fetchTransportModes(),
         _service.fetchBoardingPoints(),
