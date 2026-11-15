@@ -276,6 +276,8 @@
       "direction": "going",
       "is_active": true,
       "length_km": 13.622537,
+      "duration": 32,
+      "min_fare": 15,
       "stop_ids": [
         "S01",  
         "S12",  
@@ -752,6 +754,8 @@
       "direction": "returning",
       "is_active": true,
       "length_km": 10.749774,
+      "duration": 28,
+      "min_fare": 15,
       "stop_ids": [
         "S08",  
         "S17",  
@@ -1163,6 +1167,8 @@
       "direction": "going",
       "is_active": true,
       "length_km": 12.920836,
+      "duration": 30,
+      "min_fare": 15,
       "stop_ids": [
         "S01",  
         "S33",  
@@ -1613,6 +1619,8 @@
       "direction": "returning",
       "is_active": true,
       "length_km": 12.043431,
+      "duration": 30,
+      "min_fare": 15,
       "stop_ids": [
         "S08",  
         "S22",  
@@ -2046,6 +2054,8 @@
       "direction": "going",
       "is_active": true,
       "length_km": 9.33,
+      "duration": 27,
+      "min_fare": 15,
       "stop_ids": [
         "S09", 
         "S10", 
@@ -2069,6 +2079,8 @@
       "direction": "returning",
       "is_active": true,
       "length_km": 9.33,
+      "duration": 25,
+      "min_fare": 15,
       "stop_ids": [
 
         "S28", 
@@ -2092,6 +2104,8 @@
       "direction": "going",
       "is_active": true,
       "length_km": 9.65,
+      "duration": 27,
+      "min_fare": 15,
       "stop_ids": [
 
         "S09", 
@@ -2116,6 +2130,8 @@
       "direction": "returning",
       "is_active": true,
       "length_km": 9.65,
+      "duration": 27,
+      "min_fare": 15,
       "stop_ids": [
         "S41",  
         "S42",  
