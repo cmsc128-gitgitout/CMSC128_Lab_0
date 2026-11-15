@@ -2,10 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 import '../providers/transit_provider.dart';
+import '../models/boarding_point.dart';
 import '../utils/transport_labels.dart';
-import '../widgets/pill_toggle.dart';
 import '../widgets/route_card.dart';
-import '../widgets/search_pill.dart';
 import '../models/transit_route.dart';
 
 // Network tab: routes and terminals.
@@ -18,11 +17,6 @@ class NetworkScreen extends StatefulWidget {
 
 class _NetworkScreenState extends State<NetworkScreen> {
   static const _tabs = ['Routes', 'Terminals'];
-  static const _filters = [
-    'All Terminals',
-    'Jeepney Terminals',
-    'Bus Terminals',
-  ];
 
   int _tab = 0;
   int _filter = 0; // UI-only for now
@@ -37,44 +31,163 @@ class _NetworkScreenState extends State<NetworkScreen> {
   Widget build(BuildContext context) {
     // Data is loaded at startup in main.dart; the screen only watches it.
     final provider = context.watch<TransitProvider>();
+    final topInset = MediaQuery.of(context).padding.top;
 
     return Scaffold(
-      backgroundColor: Colors.white,
-      body: SafeArea(
-        child: Padding(
-          padding: const EdgeInsets.fromLTRB(16, 16, 16, 0),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              const Text(
-                'Routes and Terminals',
-                style: TextStyle(fontSize: 26, fontWeight: FontWeight.w800),
+      backgroundColor: const Color(0xFFF5F8FC),
+      body: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          // Blue header extends under the status bar, like the design.
+          Container(
+            color: const Color(0xFF1261A6),
+            padding: EdgeInsets.fromLTRB(22, topInset + 24, 22, 22),
+            child: const Text(
+              'Routes & Terminals',
+              style: TextStyle(
+                color: Colors.white,
+                fontSize: 20,
+                fontWeight: FontWeight.w700,
               ),
-              const SizedBox(height: 16),
-              PillToggle(
-                labels: _tabs,
-                selectedIndex: _tab,
-                onChanged: (i) => setState(() => _tab = i),
-              ),
-              const SizedBox(height: 16),
-              SearchPill(
-                hint: 'Search destination, route, or stop',
-                onTap: () => _toast('TODO: open route search'),
-              ),
-              const SizedBox(height: 12),
-              PillToggle(
-                labels: _filters,
-                selectedIndex: _filter,
-                onChanged: (i) => setState(() => _filter = i),
-                selectedColor: const Color(0xFFBDBDBD),
-                selectedTextColor: Colors.black,
-                fontSize: 12,
-              ),
-              const SizedBox(height: 16),
-              Expanded(child: _buildBody(provider)),
-            ],
+            ),
           ),
-        ),
+          Expanded(
+            child: Padding(
+              padding: const EdgeInsets.fromLTRB(16, 14, 16, 0),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  _buildTabs(),
+                  const SizedBox(height: 12),
+                  _buildSearch(),
+                  const SizedBox(height: 10),
+                  _buildFilters(),
+                  const SizedBox(height: 8),
+                  Expanded(child: _buildBody(provider)),
+                ],
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildTabs() {
+    return Container(
+      height: 46,
+      padding: const EdgeInsets.all(4),
+      decoration: BoxDecoration(
+        color: const Color(0xFFE7F0FA),
+        borderRadius: BorderRadius.circular(24),
+      ),
+      child: Row(
+        children: [
+          for (var i = 0; i < _tabs.length; i++)
+            Expanded(
+              child: GestureDetector(
+                onTap: () => setState(() {
+                  _tab = i;
+                  _filter = 0;
+                }),
+                child: AnimatedContainer(
+                  duration: const Duration(milliseconds: 160),
+                  alignment: Alignment.center,
+                  decoration: BoxDecoration(
+                    color: _tab == i
+                        ? const Color(0xFF1261A6)
+                        : Colors.transparent,
+                    borderRadius: BorderRadius.circular(22),
+                  ),
+                  child: Text(
+                    _tabs[i],
+                    style: TextStyle(
+                      color: _tab == i ? Colors.white : const Color(0xFF245A88),
+                      fontSize: 14,
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
+                ),
+              ),
+            ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildSearch() {
+    return Container(
+      height: 44,
+      padding: const EdgeInsets.symmetric(horizontal: 14),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(22),
+        border: Border.all(color: const Color(0xFFD5E3F0)),
+      ),
+      child: Row(
+        children: [
+          const Icon(Icons.search, size: 20, color: Color(0xFF1261A6)),
+          const SizedBox(width: 10),
+          Expanded(
+            child: TextField(
+              onTap: () => _toast('TODO: open route search'),
+              textAlign: TextAlign.start,
+              textAlignVertical: TextAlignVertical.center,
+              style: const TextStyle(fontSize: 13),
+              decoration: const InputDecoration(
+                hintText: 'Search destination, route, or stop',
+                hintStyle: TextStyle(fontSize: 13, color: Color(0xFF667085)),
+                border: InputBorder.none,
+                isCollapsed: true,
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildFilters() {
+    final filters = _tab == 0
+        ? const ['All routes', 'Jeepney', 'E-bus']
+        : const ['All terminals', 'Jeepney', 'E-bus'];
+
+    return SingleChildScrollView(
+      scrollDirection: Axis.horizontal,
+      child: Row(
+        children: [
+          for (var i = 0; i < filters.length; i++) ...[
+            if (i > 0) const SizedBox(width: 8),
+            Material(
+              color: _filter == i ? const Color(0xFF1261A6) : Colors.white,
+              shape: StadiumBorder(
+                side: BorderSide(
+                  color: _filter == i
+                      ? const Color(0xFF1261A6)
+                      : const Color(0xFFD5E3F0),
+                ),
+              ),
+              child: InkWell(
+                customBorder: const StadiumBorder(),
+                onTap: () => setState(() => _filter = i),
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 14,
+                    vertical: 8,
+                  ),
+                  child: Text(
+                    filters[i],
+                    style: TextStyle(
+                      color: _filter == i ? Colors.white : Colors.black87,
+                      fontSize: 12,
+                      fontWeight: FontWeight.w500,
+                    ),
+                  ),
+                ),
+              ),
+            ),
+          ],
+        ],
       ),
     );
   }
@@ -92,7 +205,8 @@ class _NetworkScreenState extends State<NetworkScreen> {
             Text(provider.error!, textAlign: TextAlign.center),
             const SizedBox(height: 12),
             FilledButton(
-              onPressed: provider.load, // the only place the screen calls load()
+              onPressed:
+                  provider.load, // the only place the screen calls load()
               child: const Text('Try again'),
             ),
           ],
@@ -111,28 +225,38 @@ class _NetworkScreenState extends State<NetworkScreen> {
       padding: const EdgeInsets.only(bottom: 16),
       children: [
         _sectionTitle('CITY ROUTES'),
-        for (final r in routes) _routeCard(provider, r),
+        for (var i = 0; i < routes.length; i++)
+          _routeCard(provider, routes[i], initiallyExpanded: i == 0),
       ],
     );
   }
 
-  Widget _routeCard(TransitProvider provider, TransitRoute r) {
+  Widget _routeCard(
+    TransitProvider provider,
+    TransitRoute r, {
+    required bool initiallyExpanded,
+  }) {
     // Map points: first stop = start, last stop = end.
     // Fewer than 2 stops (or unknown ids) means no map.
-    final first =
-        r.stopIds.length >= 2 ? provider.stopById(r.stopIds.first) : null;
-    final last =
-        r.stopIds.length >= 2 ? provider.stopById(r.stopIds.last) : null;
+    final first = r.stopIds.length >= 2
+        ? provider.stopById(r.stopIds.first)
+        : null;
+    final last = r.stopIds.length >= 2
+        ? provider.stopById(r.stopIds.last)
+        : null;
     final hasMap = first != null && last != null;
 
     return Padding(
       padding: const EdgeInsets.only(bottom: 10),
       child: RouteCard(
         key: ValueKey(r.id), // keeps expand/collapse state on the right card
+        initiallyExpanded: initiallyExpanded,
         badge: transportBadge(provider.modeName(r.transportModeId)),
         title: r.name,
-        via: '', // no "via" field in the data yet
-        code: 'Fare: TBD', // real fares come with fare_rules (sprint 2)
+        via: '', // no "via" field in the data yet -> e.g. 'CPU Jeep'
+        travelTime: '', // no travel time in the data yet -> e.g. '~35 min'
+        // Fares stay null (shows "TBD") until fare_rules arrive (sprint 2):
+        // discountedFare: ..., regularFare: ...,
         dropOffs: r.stopIds.skip(1).map<String>(provider.stopName).toList(),
         startLat: hasMap ? first.lat : null,
         startLng: hasMap ? first.lng : null,
@@ -152,15 +276,19 @@ class _NetworkScreenState extends State<NetworkScreen> {
       padding: const EdgeInsets.only(bottom: 16),
       children: [
         _sectionTitle('MAJOR TERMINALS'),
-        for (final t in terminals)
+        for (var i = 0; i < terminals.length; i++)
           Padding(
             padding: const EdgeInsets.only(bottom: 10),
-            child: RouteCard(
-              key: ValueKey(t.id),
-              badge: provider.modeNamesServing(t.id).map(transportBadge).join(' / '),
-              title: t.name,
-              // district line left blank: no data behind it yet
-              onViewMap: () => _toast('TODO: show terminal on map'),
+            child: _TerminalCard(
+              key: ValueKey(terminals[i].id),
+              terminal: terminals[i],
+              services: provider.modeNamesServing(terminals[i].id),
+              initiallyExpanded: i == 0,
+              // Hook these up once BoardingPoint has the fields, e.g.
+              // subtitle: terminals[i].district,
+              // address: terminals[i].address,
+              // hours: terminals[i].hours,
+              onDetails: () => _toast('TODO: show terminal details'),
             ),
           ),
       ],
@@ -173,10 +301,191 @@ class _NetworkScreenState extends State<NetworkScreen> {
       child: Text(
         title,
         style: const TextStyle(
-          fontSize: 12,
+          fontSize: 11,
           fontWeight: FontWeight.w700,
           letterSpacing: 0.5,
+          color: Color(0xFF667085),
         ),
+      ),
+    );
+  }
+}
+
+class _TerminalCard extends StatefulWidget {
+  const _TerminalCard({
+    super.key,
+    required this.terminal,
+    required this.services,
+    required this.initiallyExpanded,
+    required this.onDetails,
+    this.subtitle,
+    this.address,
+    this.hours,
+  });
+
+  final BoardingPoint terminal;
+  final List<String> services;
+  final bool initiallyExpanded;
+  final VoidCallback onDetails;
+  final String? subtitle; // e.g. "Villa Arevalo District"
+  final String? address; // e.g. "Mohon Terminal, Arevalo, Iloilo City"
+  final String? hours; // e.g. "8:00 AM – 11:00 PM · Mon–Fri"
+
+  @override
+  State<_TerminalCard> createState() => _TerminalCardState();
+}
+
+class _TerminalCardState extends State<_TerminalCard> {
+  late bool _expanded = widget.initiallyExpanded;
+
+  // Header subtitle: district if known, otherwise the services.
+  String get _subtitle {
+    if (widget.subtitle != null && widget.subtitle!.isNotEmpty) {
+      return widget.subtitle!;
+    }
+    return widget.services.isEmpty ? 'Terminal' : widget.services.join(' / ');
+  }
+
+  Widget _infoRow(IconData icon, String text) {
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 8),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Icon(icon, size: 18, color: const Color(0xFF1261A6)),
+          const SizedBox(width: 8),
+          Expanded(
+            child: Text(text, style: const TextStyle(fontSize: 12.5)),
+          ),
+        ],
+      ),
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      decoration: BoxDecoration(
+        color: Colors.white,
+        // Blue border when open, soft grey when collapsed (as in the design).
+        border: Border.all(
+          color: _expanded ? const Color(0xFF9CC4E6) : const Color(0xFFE6EBF0),
+          width: 1.2,
+        ),
+        borderRadius: BorderRadius.circular(14),
+      ),
+      child: Column(
+        children: [
+          InkWell(
+            borderRadius: BorderRadius.circular(14),
+            onTap: () => setState(() => _expanded = !_expanded),
+            child: Padding(
+              padding: const EdgeInsets.all(12),
+              child: Row(
+                children: [
+                  Container(
+                    width: 38,
+                    height: 38,
+                    decoration: BoxDecoration(
+                      color: const Color(0xFFFFF3D9),
+                      borderRadius: BorderRadius.circular(10),
+                    ),
+                    child: const Icon(
+                      Icons.flag_outlined,
+                      color: Color(0xFFB87900),
+                      size: 21,
+                    ),
+                  ),
+                  const SizedBox(width: 10),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          widget.terminal.name,
+                          style: const TextStyle(
+                            fontSize: 14,
+                            fontWeight: FontWeight.w700,
+                          ),
+                        ),
+                        const SizedBox(height: 2),
+                        Text(
+                          _subtitle,
+                          style: const TextStyle(
+                            fontSize: 11,
+                            color: Color(0xFF667085),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                  Icon(
+                    _expanded
+                        ? Icons.keyboard_arrow_up
+                        : Icons.keyboard_arrow_down,
+                    color: const Color(0xFF1261A6),
+                  ),
+                ],
+              ),
+            ),
+          ),
+          if (_expanded) ...[
+            const Divider(height: 1, color: Color(0xFFE8EDF2)),
+            Padding(
+              padding: const EdgeInsets.fromLTRB(12, 12, 12, 12),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  if (widget.address != null)
+                    _infoRow(Icons.location_on_outlined, widget.address!),
+                  if (widget.hours != null)
+                    _infoRow(Icons.access_time, widget.hours!),
+                  if (widget.services.isNotEmpty)
+                    _infoRow(
+                      Icons.directions_bus_outlined,
+                      widget.services.join('  ·  '),
+                    ),
+                  const SizedBox(height: 4),
+                  const _TerminalMapPlaceholder(),
+                  const SizedBox(height: 12),
+                  SizedBox(
+                    width: double.infinity,
+                    height: 40,
+                    child: OutlinedButton(
+                      onPressed: widget.onDetails,
+                      style: OutlinedButton.styleFrom(
+                        foregroundColor: const Color(0xFF1261A6),
+                        side: const BorderSide(color: Color(0xFF75A9D7)),
+                        shape: const StadiumBorder(),
+                      ),
+                      child: const Text(
+                        'View terminal details',
+                        style: TextStyle(fontSize: 13),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ],
+      ),
+    );
+  }
+}
+
+// Blank container where the terminal map will go later.
+class _TerminalMapPlaceholder extends StatelessWidget {
+  const _TerminalMapPlaceholder();
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      height: 112,
+      width: double.infinity,
+      decoration: BoxDecoration(
+        color: const Color(0xFFE3ECE5),
+        borderRadius: BorderRadius.circular(10),
       ),
     );
   }
