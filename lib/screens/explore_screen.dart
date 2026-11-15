@@ -7,6 +7,7 @@ import '../widgets/ai_assistant_button.dart';
 import '../widgets/map_buttons.dart';
 import '../widgets/iloilo_map.dart';
 import '../widgets/search_pill.dart';
+import '../widgets/suggested_routes_sheet.dart';
 import 'plan_trip_screen.dart';
 
 class ExploreScreen extends StatefulWidget {
@@ -26,6 +27,18 @@ class _ExploreScreenState extends State<ExploreScreen> {
       ..showSnackBar(SnackBar(content: Text(message)));
   }
 
+  void _showSuggestedRoutes() {
+    showModalBottomSheet<void>(
+      context: context,
+      isScrollControlled: true,
+      isDismissible: true,
+      enableDrag: true,
+      backgroundColor: Colors.transparent,
+      barrierColor: Colors.transparent,
+      builder: (_) => const SuggestedRoutesSheet(),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     //read list of routes then awlays sync with transitprovider updates
@@ -35,32 +48,34 @@ class _ExploreScreenState extends State<ExploreScreen> {
         // Layer 1: map 
         Positioned.fill(child: IloiloMap(routes: routes)),  //pass livee data to map
 
-        // Layer 2: search bar
-        SafeArea(
-          child: Padding(
-            padding: const EdgeInsets.fromLTRB(16, 50, 16, 0),
-            child: SearchPill(
-              hint: 'Where to?',
-              // Open the plan trip screen
-              onTap: () => Navigator.of(context).push(
-                MaterialPageRoute(builder: (_) => const PlanTripScreen()),
-              ),
-            ),
-          ),
-        ),
-
-        // Layer 3: AI assistant button
+        // Map controls sit below the route sheet.
         Align(
           alignment: Alignment.bottomLeft,
           child: Padding(
             padding: const EdgeInsets.all(16),
-            child: AiAssistantButton(
-              onPressed: () => _toast(context, 'TODO: open AI assistant'),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Material(
+                  color: const Color(0xFF1261A6),
+                  elevation: 6,
+                  shape: const CircleBorder(),
+                  child: IconButton(
+                    tooltip: 'Test suggested routes',
+                    onPressed: _showSuggestedRoutes,
+                    icon: const Icon(Icons.alt_route, color: Colors.white),
+                  ),
+                ),
+                const SizedBox(height: 12),
+                AiAssistantButton(
+                  onPressed: () => _toast(context, 'TODO: open AI assistant'),
+                ),
+              ],
             ),
           ),
         ),
 
-        // Layer 4: locate and directions buttons
         Align(
           alignment: Alignment.bottomRight,
           child: Padding(
@@ -71,12 +86,11 @@ class _ExploreScreenState extends State<ExploreScreen> {
                 MapButton(
                   icon: Icons.my_location,
                   tooltip: 'My location',
-
                   // Temporary: toggles the glow to indicate active button
                   active: _locationGranted,
-                  onPressed: () => setState(() => _locationGranted = !_locationGranted),
+                  onPressed: () =>
+                      setState(() => _locationGranted = !_locationGranted),
                   // onPressed: () => _toast(context, 'TODO: center on location'),
-                  
                 ),
                 const SizedBox(height: 12),
                 MapButton(
@@ -88,6 +102,19 @@ class _ExploreScreenState extends State<ExploreScreen> {
                   ),
                 ),
               ],
+            ),
+          ),
+        ),
+
+        // Search bar
+        SafeArea(
+          child: Padding(
+            padding: const EdgeInsets.fromLTRB(16, 50, 16, 0),
+            child: SearchPill(
+              hint: 'Where to?',
+              onTap: () => Navigator.of(
+                context,
+              ).push(MaterialPageRoute(builder: (_) => const PlanTripScreen())),
             ),
           ),
         ),
