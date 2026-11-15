@@ -30,4 +30,29 @@ class TransitService {
         .get();
     return snap.docs.map((d) => TransitRoute.fromMap(d.id, d.data())).toList();
   }
+
+
+//fetch routes in going direc
+  Future<List<TransitRoute>> fetchGoingRoutes() async {
+    final snap = await _db
+        .collection('routes')
+        .where('is_active', isEqualTo: true)
+        .where('direction', isEqualTo: 'going')
+        .get();
+    return snap.docs.map((d) => TransitRoute.fromMap(d.id, d.data())).toList();
+  }
+
+  //fetch routes in return direction
+  Future<List<TransitRoute>> fetchReturningRoutes() async {
+    final snap = await _db
+        .collection('routes')
+        .where('is_active', isEqualTo: true)
+        .where('direction', isEqualTo: 'returning')
+        .get();
+    return snap.docs.map((d) => TransitRoute.fromMap(d.id, d.data())).toList();
+  }
+
+
+
+
 }
