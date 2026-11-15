@@ -1,3 +1,4 @@
+// import 'package:flutter/foundation.dart'; 
 import '../utils/firestore_datetime.dart';
 
 // Collection: routes 
@@ -13,7 +14,7 @@ class TransitRoute {
     required this.transportModeId,
     required this.stopIds,
 
-    this.path = const [],
+    this.path = const [], 
     this.lengthKm,
     this.lastVerified,
     this.isActive = true,
@@ -33,13 +34,25 @@ class TransitRoute {
 
 
 factory TransitRoute.fromMap(String id, Map<String, dynamic> map) {
-    // convert firestore  maps to [ array pairs for mapbox
-    final rawPath = map['path'] as List? ?? [];
+    // convert firestore arr containing  maps to [ array pairs for mapbox 
+    final pathForMapbox = map['path'] as List? ?? [];
+    //loop through
     final List<List<double>> parsedPath = [];
-    for (final item in rawPath){
+    for (final item in pathForMapbox){
+      //vhrvk if same type 
+      // if (item is! Map) {
+      //   debugPrint('TransitRoute $id: skipped poinr: $item');
+      //   continue;
+      // }
       final point = item as Map<String, dynamic>;
-      final double lng = point['lng'].toDouble();
-      final double lat = point['lat'].toDouble();
+      final lngRaw = point['lng'];
+      final latRaw = point['lat'];
+      // if (lngRaw is! num||latRaw is! num) {
+      //   debugPrint('TransitRoute $id: skipp: $item');
+      //   continue;
+      // }
+      final double lng = lngRaw.toDouble();
+      final double lat = latRaw.toDouble();
       parsedPath.add([lng, lat]);
     }
 
