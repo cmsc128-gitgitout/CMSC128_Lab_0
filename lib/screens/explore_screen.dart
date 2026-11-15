@@ -112,9 +112,10 @@ class _ExploreScreenState extends State<ExploreScreen> {
             padding: const EdgeInsets.fromLTRB(16, 50, 16, 0),
             child: SearchPill(
               hint: 'Where to?',
-              onTap: () => Navigator.of(
-                context,
-              ).push(MaterialPageRoute(builder: (_) => const PlanTripScreen())),
+              readOnly: true,       // tap target only; typing happens on the plan trip screen
+              onTap: () => Navigator.of(context).push(
+                MaterialPageRoute(builder: (_) => PlanTripScreen(locEnabled: _locationGranted))
+              ),
             ),
           ),
         ),
