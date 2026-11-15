@@ -26,6 +26,11 @@ class TransitProvider extends ChangeNotifier {
       (_points.values.where((p) => p.isTerminal).toList())
         ..sort((a, b) => a.name.compareTo(b.name));
 
+  // All loaded boarding points, sorted by name. Read-only view used by the
+  // plan a trip search; does not change how data is loaded.
+  List<BoardingPoint> get boardingPoints =>
+      (_points.values.toList())..sort((a, b) => a.name.compareTo(b.name));
+      
   // Loads everything from Firestore. Also used for "Try again".
   Future<void> load() async {
     _isLoading = true;
