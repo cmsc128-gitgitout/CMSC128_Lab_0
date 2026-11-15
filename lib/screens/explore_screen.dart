@@ -114,7 +114,7 @@ class _ExploreScreenState extends State<ExploreScreen> {
               hint: 'Where to?',
               readOnly: true,       // tap target only; typing happens on the plan trip screen
               onTap: () => Navigator.of(context).push(
-                MaterialPageRoute(builder: (_) => const PlanTripScreen())
+                MaterialPageRoute(builder: (_) => PlanTripScreen(locEnabled: _locationGranted))
               ),
             ),
           ),
