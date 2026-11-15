@@ -1,3 +1,4 @@
+// import 'package:flutter/foundation.dart'; 
 import '../utils/firestore_datetime.dart';
 
 // Collection: routes 
@@ -12,12 +13,15 @@ class TransitRoute {
     required this.direction,
     required this.transportModeId,
     required this.stopIds,
+
+    this.path = const [], 
     this.lengthKm,
     this.lastVerified,
     this.isActive = true,
   });
 
   final String id; // document id
+  final List<List<double>> path; //[lng, lat] format same w mapbox
   final String routeNo; // official LTFRB route number
   final String name;
   final String direction; // going or returning
@@ -27,7 +31,31 @@ class TransitRoute {
   final DateTime? lastVerified;
   final bool isActive;
 
-  factory TransitRoute.fromMap(String id, Map<String, dynamic> map) {
+
+
+factory TransitRoute.fromMap(String id, Map<String, dynamic> map) {
+    // convert firestore arr containing  maps to [ array pairs for mapbox 
+    final pathForMapbox = map['path'] as List? ?? [];
+    //loop through
+    final List<List<double>> parsedPath = [];
+    for (final item in pathForMapbox){
+      //vhrvk if same type 
+      // if (item is! Map) {
+      //   debugPrint('TransitRoute $id: skipped poinr: $item');
+      //   continue;
+      // }
+      final point = item as Map<String, dynamic>;
+      final lngRaw = point['lng'];
+      final latRaw = point['lat'];
+      // if (lngRaw is! num||latRaw is! num) {
+      //   debugPrint('TransitRoute $id: skipp: $item');
+      //   continue;
+      // }
+      final double lng = lngRaw.toDouble();
+      final double lat = latRaw.toDouble();
+      parsedPath.add([lng, lat]);
+    }
+
     return TransitRoute(
       id: id,
       routeNo: map['route_no'] as String,
@@ -38,6 +66,7 @@ class TransitRoute {
       lengthKm: (map['length_km'] as num?)?.toDouble(),
       lastVerified: parseDateTime(map['last_verified']),
       isActive: map['is_active'] as bool? ?? true,
+      path: parsedPath,
     );
   }
 
