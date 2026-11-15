@@ -109,6 +109,9 @@ class _PlanTripScreenState extends State<PlanTripScreen> {
   // Fills the active field with the picked stop and remembers it. 
   // Then focus moves to the other field if it is still empty, so the user can finish the trip.
   void _pick(BoardingPoint stop) {
+    // remember it for next time (shared history, max 7, saved on the device)
+    context.read<TransitProvider>().addRecentSearch(stop.name);
+
     setState(() {
       _setText(_activeCtrl, stop.name);
       if (_active == _Field.origin) {
@@ -143,19 +146,21 @@ class _PlanTripScreenState extends State<PlanTripScreen> {
   }
 
   // Recents shown while the active field is empty.
-  List<BoardingPoint> _recents(TransitProvider transit) => _placeholderRecentIds
-      .map(transit.stopById)
+  List<BoardingPoint> _recents(TransitProvider transit) => transit.recentSearches
+      .map(transit.stopByName)
       .whereType<BoardingPoint>()
       .toList();
 
-  // Live suggestions: stops whose name contains the typed text. 
-  // Matching recents come first so they keep their clock icon.
-  // Local filtering for now; this is the place to swap in a real places search later.
+  // True when the stop's name is in the saved history.
+  bool _isRecent(TransitProvider transit, BoardingPoint stop) => transit.recentSearches.any(
+    (s) => s.toLowerCase() == stop.name.toLowerCase());
 
+  // Live suggestions from provider's stops search. 
+  // Matching recents come first so they keep their clock icon.
   List<BoardingPoint> _search(TransitProvider transit, String query) {
     final matches = transit.searchStops(query);
-    final recent = matches.where((p) => _placeholderRecentIds.contains(p.id));
-    final others = matches.where((p) => !_placeholderRecentIds.contains(p.id));
+    final recent = matches.where((p) => _isRecent(transit, p));
+    final others = matches.where((p) => !_isRecent(transit, p));
     return [...recent, ...others];
   }
 
@@ -206,12 +211,12 @@ class _PlanTripScreenState extends State<PlanTripScreen> {
         
         const Divider(height: 1),
 
-        if (isTyping && stops.isEmpty)
-          const Padding(
+        if (stops.isEmpty)
+          Padding(
             padding: EdgeInsets.all(24),
             child: Center(
               child: Text(
-                'No places found', 
+                isTyping ? 'No places found' : 'Places you search will show up here', 
                 style: TextStyle(color: Color(0xFF5F6368))
               ),
             ),
@@ -222,7 +227,7 @@ class _PlanTripScreenState extends State<PlanTripScreen> {
           PlaceTile(
             name: stop.name,
             detail: _detailFor(transit, stop),
-            isRecent: _placeholderRecentIds.contains(stop.id),
+            isRecent: _isRecent(transit, stop),
             onTap: () => _pick(stop)
           ),
         ]
