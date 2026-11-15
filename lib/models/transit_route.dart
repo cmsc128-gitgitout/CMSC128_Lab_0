@@ -60,7 +60,6 @@ factory TransitRoute.fromMap(String id, Map<String, dynamic> map) {
       // }
       final double lng = lngRaw.toDouble();
       final double lat = latRaw.toDouble();
-
       parsedPath.add([lng, lat]);
     }
 
