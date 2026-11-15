@@ -201,7 +201,7 @@ class _PlanTripScreenState extends State<PlanTripScreen> {
         // Always available, in every state.
         ListTile(
           leading: const Icon(Icons.map_outlined, color: AppTheme.primary),
-          title: const Text('Choose on map'),
+          title: const Text('Choose on map', style: TextStyle(fontWeight: FontWeight.w600, color: Colors.black)),
           onTap: _chooseOnMap,
         ),
         
@@ -243,7 +243,7 @@ class _PlanTripScreenState extends State<PlanTripScreen> {
           children: [
             // Header: back button + title
             Padding(
-              padding: const EdgeInsets.fromLTRB(4, 8, 16, 0),
+              padding: const EdgeInsets.fromLTRB(4, 16, 16, 0),
               child: Row(
                 children: [
                   IconButton(
@@ -260,7 +260,7 @@ class _PlanTripScreenState extends State<PlanTripScreen> {
             
             // Start + destination fields and the swap button
             Padding(
-              padding: const EdgeInsets.fromLTRB(16, 12, 16, 8),
+              padding: const EdgeInsets.fromLTRB(16, 20, 16, 8),
               child: Row(
                 children: [
                   Expanded(
