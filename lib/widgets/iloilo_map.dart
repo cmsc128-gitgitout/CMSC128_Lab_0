@@ -25,6 +25,8 @@ class _IloiloMapState extends State<IloiloMap> {
   static const List<String> _routeColors = [
     '#800080', //  red
     '#1565C0', // Blue
+    '#FFFF00',
+    '#00FF00'
   ];
 
 ////redraw whenever transitRoute passes updated route list
