@@ -9,10 +9,6 @@ import '../widgets/place_tile.dart';
 import '../widgets/search_section_label.dart';
 import 'choose_on_map_screen.dart';
 
-// Placeholder recents (boarding point ids) until previous searches are stored. 
-// TODO: replace with real search history.
-const _placeholderRecentIds = ['S26', 'S38']; // Robinsons Jaro, SM City
-
 // Which of the two inputs the user is currently editing.
 enum _Field { origin, destination }
 
