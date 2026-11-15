@@ -19,7 +19,10 @@ enum _Field { origin, destination }
 // Plan your trip screen: start and destination inputs
 // has results container (for either recents / live suggestions) below.
 class PlanTripScreen extends StatefulWidget {
-  const PlanTripScreen({super.key});
+  const PlanTripScreen({super.key, this.locEnabled = false});
+
+  // Whether live loc is available. Placeholder flag until the location feature exists.
+  final bool locEnabled;
 
   @override
   State<PlanTripScreen> createState() => _PlanTripScreenState();
@@ -40,14 +43,27 @@ class _PlanTripScreenState extends State<PlanTripScreen> {
   BoardingPoint? _origin;
   BoardingPoint? _destination;
 
+  // Text shown in the start field when the user's location is used
+  static const _currentLocLabel = 'Your location';
+
   // Runs once when the screen opens. 
   // Sets up the listeners that keep _active in sync with whichever field has focus.
   @override
   void initState() {
     super.initState();
 
+    // Location on: start is prefilled. 
+    // Location off: start stays empty and shows its hint so the user picks a start themselves.
+    if (widget.locEnabled) _originCtrl.text = _currentLocLabel;
+
     _originFocus.addListener(() {
-      if (_originFocus.hasFocus) setState(() => _active = _Field.origin);
+      if (!_originFocus.hasFocus) return;
+      setState(() => _active = _Field.origin);
+
+      // Select the "Your location" label so typing replaces it
+      if (_originCtrl.text == _currentLocLabel) {
+        _originCtrl.selection = TextSelection(baseOffset: 0, extentOffset: _originCtrl.text.length);
+      }
     });
 
     _destFocus.addListener(() {
@@ -113,7 +129,11 @@ class _PlanTripScreenState extends State<PlanTripScreen> {
   }
 
   // What the user typed in the active field.
-  String get _query => _activeCtrl.text.trim();
+  // The "Your location" label is not a search, so it counts as empty and recents show instead.
+  String get _query {
+    final text = _activeCtrl.text.trim();
+    return text == _currentLocLabel ? '' : text;
+  }
 
   // Second line under a stop's name: terminal flag or the modes serving it.
   String _detailFor(TransitProvider transit, BoardingPoint stop) {
