@@ -1,4 +1,7 @@
 import 'package:flutter/material.dart';
+//for reading route data
+import 'package:provider/provider.dart';
+import '../providers/transit_provider.dart';
 
 import '../widgets/ai_assistant_button.dart';
 import '../widgets/map_buttons.dart';
@@ -38,10 +41,12 @@ class _ExploreScreenState extends State<ExploreScreen> {
 
   @override
   Widget build(BuildContext context) {
+    //read list of routes then awlays sync with transitprovider updates
+    final routes = context.watch<TransitProvider>().routes; 
     return Stack(
       children: [
-        // Layer 1: map
-        const Positioned.fill(child: IloiloMap()),
+        // Layer 1: map 
+        Positioned.fill(child: IloiloMap(routes: routes)),  //pass livee data to map
 
         // Map controls sit below the route sheet.
         Align(
