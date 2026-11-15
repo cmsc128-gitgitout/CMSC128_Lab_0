@@ -107,18 +107,31 @@ class TransitProvider extends ChangeNotifier {
     }).toList();
   }
 
-  // filter by stops
-  List<BoardingPoint> get filteredStops {
-    final q = _searchQuery.trim().toLowerCase();
+  // Stops whose name contains every word in [query]
+  // Pure lookup only and does not touch the shared search state, so Plan trip and Network search can use it at the same time.
+  List<BoardingPoint> searchStops(String query) {
+    final q = query.trim().toLowerCase();
     if (q.isEmpty) return [];
 
     final keywords = q.split(RegExp(r'\s+'));
-
     return (_points.values.where((p) {
       final name = p.name.toLowerCase();
       return keywords.every((word) => name.contains(word));
     }).toList())
       ..sort((a, b) => a.name.compareTo(b.name));
+  }
+
+
+  // filter by stops
+  List<BoardingPoint> get filteredStops => searchStops(_searchQuery);
+
+  // the stop with exactly this name (case-insensitive) or null. Turns a saved recent search back into a stop.
+  BoardingPoint? stopByName(String name) {
+    final n = name.trim().toLowerCase();
+    for (final p in _points.values) {
+      if (p.name.toLowerCase() == n) return p;
+    }
+    return null;
   }
 
 

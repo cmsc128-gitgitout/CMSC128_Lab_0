@@ -153,9 +153,7 @@ class _PlanTripScreenState extends State<PlanTripScreen> {
   // Local filtering for now; this is the place to swap in a real places search later.
 
   List<BoardingPoint> _search(TransitProvider transit, String query) {
-    final q = query.toLowerCase();
-    final matches =
-        transit.boardingPoints.where((p) => p.name.toLowerCase().contains(q));
+    final matches = transit.searchStops(query);
     final recent = matches.where((p) => _placeholderRecentIds.contains(p.id));
     final others = matches.where((p) => !_placeholderRecentIds.contains(p.id));
     return [...recent, ...others];
