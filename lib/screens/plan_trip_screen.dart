@@ -31,8 +31,14 @@ class _PlanTripScreenState extends State<PlanTripScreen> {
   final _originFocus = FocusNode();
   final _destFocus = FocusNode();
 
-  // The field the list below belongs to. Follows focus.
+  // The field the list below belongs to; follows focus
   _Field _active = _Field.destination;
+
+  // Stops the user picked for each field
+  // null when field is empty or its text was typed by hand (or is "Your location")
+  // TODO: widen to a shared place model so map pins and the user's current location can be stored too.
+  BoardingPoint? _origin;
+  BoardingPoint? _destination;
 
   // Runs once when the screen opens. 
   // Sets up the listeners that keep _active in sync with whichever field has focus.
@@ -78,7 +84,32 @@ class _PlanTripScreenState extends State<PlanTripScreen> {
     setState(() {
       _setText(_originCtrl, _destCtrl.text);
       _setText(_destCtrl, origin);
+      final stop = _origin;
+      _origin = _destination;
+      _destination = stop;
     });
+  }
+
+  // Fills the active field with the picked stop and remembers it. 
+  // Then focus moves to the other field if it is still empty, so the user can finish the trip.
+  void _pick(BoardingPoint stop) {
+    setState(() {
+      _setText(_activeCtrl, stop.name);
+      if (_active == _Field.origin) {
+        _origin = stop;
+      } else {
+        _destination = stop;
+      }
+    });
+
+    if (_active == _Field.origin && _destCtrl.text.isEmpty) {
+      _destFocus.requestFocus();
+    } else if (_active == _Field.destination && _originCtrl.text.isEmpty) {
+      _originFocus.requestFocus();
+    } else {
+      // Both fields are filled. The route results step will start here.
+      FocusScope.of(context).unfocus();
+    }
   }
 
   // What the user typed in the active field.
@@ -174,7 +205,7 @@ class _PlanTripScreenState extends State<PlanTripScreen> {
             name: stop.name,
             detail: _detailFor(transit, stop),
             isRecent: _placeholderRecentIds.contains(stop.id),
-            onTap: () {}, // wired in a later commit
+            onTap: () => _pick(stop)
           ),
         ]
       ],
@@ -223,7 +254,7 @@ class _PlanTripScreenState extends State<PlanTripScreen> {
                           icon: Icons.circle, 
                           iconSize: 12,
                           iconColor: AppTheme.primary,
-                          onChanged: (_) => setState(() {}),
+                          onChanged: (_) => setState(() => _origin = null),         // origin field
                         ),
                         const SizedBox(height: 10),
                         LocationField(
@@ -232,7 +263,7 @@ class _PlanTripScreenState extends State<PlanTripScreen> {
                           hint: 'Where to?', 
                           icon: Icons.location_on_outlined,
                           iconColor: const Color(0xFFD32F2F),
-                          onChanged: (_) => setState(() {}),
+                          onChanged: (_) => setState(() => _destination = null),    // destination field
                         ),
                       ],
                     ),
