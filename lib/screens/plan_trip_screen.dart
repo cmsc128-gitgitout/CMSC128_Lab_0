@@ -123,6 +123,23 @@ class _PlanTripScreenState extends State<PlanTripScreen> {
   // - field empty: recents
   // - user typing: live suggestions (recents are hidden; matching ones are mixed into suggestions)
   Widget _buildResults(TransitProvider transit) {
+    // The stop list comes from Firestore, so it can still be loading or have failed.
+    // Both states reuse the provider's own flags and retry.
+    if (transit.isLoading) {
+      return const Center(child: CircularProgressIndicator());
+    }
+    if (transit.error != null) {
+      return Center(
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Text(transit.error!, textAlign: TextAlign.center),
+            TextButton(onPressed: transit.load, child: const Text('Try again')),
+          ],
+        ),
+      );
+    }
+
     final isTyping = _query.isNotEmpty;
     final stops = isTyping ? _search(transit, _query) : _recents(transit);
 
