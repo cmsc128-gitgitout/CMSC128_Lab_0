@@ -13,11 +13,15 @@ class TransitRoute {
     required this.direction,
     required this.transportModeId,
     required this.stopIds,
+    required this.duration,
+    required this.minFare,
 
     this.path = const [], 
     this.lengthKm,
     this.lastVerified,
     this.isActive = true,
+
+
   });
 
   final String id; // document id
@@ -30,6 +34,9 @@ class TransitRoute {
   final double? lengthKm;
   final DateTime? lastVerified;
   final bool isActive;
+
+  final int duration;
+  final double minFare;
 
 
 
@@ -67,6 +74,8 @@ factory TransitRoute.fromMap(String id, Map<String, dynamic> map) {
       lastVerified: parseDateTime(map['last_verified']),
       isActive: map['is_active'] as bool? ?? true,
       path: parsedPath,
+      duration: (map['duration'] as num?)?.toInt() ?? 0,
+      minFare: (map['min_fare'] as num?)?.toDouble() ?? 0.0,
     );
   }
 
