@@ -29,10 +29,37 @@ class _ChooseOnMapScreenState extends State<ChooseOnMapScreen> {
     final pos = camera.center.coordinates;
     final lat = pos.lat.toDouble();
     final lng = pos.lng.toDouble();
-    final name = await GeocodingService.reverse(lat, lng) ?? 'Pinned location';
+    final name = await _poiNameAt(camera.center) ??
+      await GeocodingService.reverse(lat, lng) ??
+      'Pinned location';
 
     if (!mounted) return;
     Navigator.pop(context, (lat: lat, lng: lng, name: name));
+  }
+
+  // Name of the POI label under the pin, or null if none is close enough.
+  Future<String?> _poiNameAt(Point center) async {
+    final map = _map;
+    if (map == null) return null;
+
+    final px = await map.pixelForCoordinate(center);
+    const r = 24.0; // search radius in screen pixels around the pin
+    final box = ScreenBox(
+      min: ScreenCoordinate(x: px.x - r, y: px.y - r),
+      max: ScreenCoordinate(x: px.x + r, y: px.y + r),
+    );
+
+    final hits = await map.queryRenderedFeatures(
+      RenderedQueryGeometry.fromScreenBox(box),
+      RenderedQueryOptions(layerIds: ['poi-label']), // POI layer in Streets style
+    );
+
+    for (final hit in hits) {
+      final props = hit?.queriedFeature.feature['properties'];
+      final name = props is Map ? props['name'] : null;
+      if (name is String && name.isNotEmpty) return name;
+    }
+    return null;
   }
 
   @override
