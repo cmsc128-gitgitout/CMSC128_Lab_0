@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'explore_screen.dart';
 import 'network_screen.dart';
 import 'chatbot_screen.dart';
+import '../widgets/location_access_dialog.dart';
 
 // Main screen: hosts the bottom navigation and the tab screens.
 class HomeScreen extends StatefulWidget {
@@ -14,6 +15,19 @@ class HomeScreen extends StatefulWidget {
 
 class _HomeScreenState extends State<HomeScreen> {
   int _index = 0;
+
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!mounted) return;
+      showDialog<void>(
+        context: context,
+        barrierDismissible: false,
+        builder: (_) => const LocationAccessDialog(),
+      );
+    });
+  }
 
   static const _tabs = <Widget>[
     ExploreScreen(),
