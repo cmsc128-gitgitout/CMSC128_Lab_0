@@ -165,12 +165,7 @@ class _PlanTripScreenState extends State<PlanTripScreen> {
 
   // Live suggestions from provider's stops search. 
   // Matching recents come first so they keep their clock icon.
-  List<BoardingPoint> _search(TransitProvider transit, String query) {
-    final matches = transit.searchStops(query);
-    final recent = matches.where((p) => _isRecent(transit, p));
-    final others = matches.where((p) => !_isRecent(transit, p));
-    return [...recent, ...others];
-  }
+  List<BoardingPoint> _search(TransitProvider transit, String query) => transit.searchStops(query);
 
   // Opens the map pin picker and fills the field that was active when tapped.
   // TODO: store picked.lat / picked.lng once the shared place model exists.
