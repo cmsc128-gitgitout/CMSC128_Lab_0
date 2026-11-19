@@ -117,14 +117,8 @@ class _PlanTripScreenState extends State<PlanTripScreen> {
       }
     });
 
-    if (_active == _Field.origin && _destCtrl.text.isEmpty) {
-      _destFocus.requestFocus();
-    } else if (_active == _Field.destination && _originCtrl.text.isEmpty) {
-      _originFocus.requestFocus();
-    } else {
-      // Both fields are filled. The route results step will start here.
-      FocusScope.of(context).unfocus();
-    }
+    // Both fields filled: the route results step will start here.
+    _focusNextEmpty(_active);
   }
 
   // After filling a field: focus the other one if empty, else close the keyboard.
