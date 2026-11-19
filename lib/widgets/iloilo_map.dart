@@ -8,8 +8,12 @@ class IloiloMap extends StatefulWidget {
   const IloiloMap({
     super.key,
     this.routes = const [],
+    this.zoom = 12,
+    this.onMapCreated,
   });
   final List<TransitRoute> routes;
+  final double zoom;
+  final void Function(MapboxMap map)? onMapCreated;
 
   @override
   State<IloiloMap> createState() => _IloiloMapState();
@@ -96,7 +100,7 @@ class _IloiloMapState extends State<IloiloMap> {
       styleUri: MapboxStyles.MAPBOX_STREETS,
       viewport: CameraViewportState(
         center: Point(coordinates: Position(122.5621, 10.7202)), // lng, lat
-        zoom: 12,
+        zoom: widget.zoom,
       ),
       onMapCreated: (MapboxMap map) async {
         _map = map;
@@ -111,6 +115,7 @@ class _IloiloMapState extends State<IloiloMap> {
             maxZoom: 18,
           ),
         );
+        widget.onMapCreated?.call(map);
       },
       //dDraw only after the style is ready
       onStyleLoadedListener: (_) {
