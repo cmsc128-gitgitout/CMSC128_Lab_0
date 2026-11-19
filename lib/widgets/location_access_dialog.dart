@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 
 class LocationAccessDialog extends StatelessWidget {
-  const LocationAccessDialog({super.key});
+  const LocationAccessDialog({super.key, required this.onAllow});
+
+  final Future<void> Function() onAllow;
 
   static const _blue = Color(0xFF2184BA);
   static const _ink = Color(0xFF20323F);
@@ -55,7 +57,10 @@ class LocationAccessDialog extends StatelessWidget {
                 width: double.infinity,
                 height: 44,
                 child: FilledButton(
-                  onPressed: () => Navigator.of(context).pop(),
+                  onPressed: () async {
+                    Navigator.of(context).pop();
+                    await onAllow();
+                  },
                   style: FilledButton.styleFrom(
                     backgroundColor: _blue,
                     foregroundColor: Colors.white,
