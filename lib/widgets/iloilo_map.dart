@@ -6,8 +6,14 @@ import 'package:mapbox_maps_flutter/mapbox_maps_flutter.dart';
 import '../models/transit_route.dart';
 
 class IloiloMap extends StatefulWidget {
-  const IloiloMap({super.key, this.routes = const []});
+  const IloiloMap({
+    super.key,
+    this.routes = const [],
+    this.showLocationPuck = false,
+  });
+
   final List<TransitRoute> routes;
+  final bool showLocationPuck;
 
   @override
   IloiloMapState createState() => IloiloMapState();
@@ -35,6 +41,9 @@ class IloiloMapState extends State<IloiloMap> {
     final map = _map;
     if (map == null || !_mapReady) return false;
 
+    await map.location.updateSettings(
+      LocationComponentSettings(enabled: true, showAccuracyRing: true),
+    );
     await map.setBounds(
       CameraBoundsOptions(bounds: InfiniteCoordinateBounds()),
     );
@@ -54,6 +63,21 @@ class IloiloMapState extends State<IloiloMap> {
     if (oldWidget.routes != widget.routes) {
       _drawRoutes();
     }
+    if (oldWidget.showLocationPuck != widget.showLocationPuck) {
+      _updateLocationPuck();
+    }
+  }
+
+  Future<void> _updateLocationPuck() async {
+    final map = _map;
+    if (map == null || !_mapReady) return;
+
+    await map.location.updateSettings(
+      LocationComponentSettings(
+        enabled: widget.showLocationPuck,
+        showAccuracyRing: widget.showLocationPuck,
+      ),
+    );
   }
 
   //convert transitroute obj to geojson string
@@ -133,6 +157,7 @@ class IloiloMapState extends State<IloiloMap> {
           ),
         );
         _mapReady = true;
+        await _updateLocationPuck();
       },
       //dDraw only after the style is ready
       onStyleLoadedListener: (_) {
