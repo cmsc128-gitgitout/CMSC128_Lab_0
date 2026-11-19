@@ -129,7 +129,14 @@ class _PlanTripScreenState extends State<PlanTripScreen> {
       _originFocus.requestFocus();
     } else {
       FocusScope.of(context).unfocus();
+      _openRouteResults();
     }
+  }
+
+  // Single hand-off point to the route results step.
+  // TODO: replace with the real route results screen.
+  void _openRouteResults() {
+    Navigator.of(context).popUntil((route) => route.isFirst); // change it to this Navigator.of(context).push(MaterialPageRoute(builder: (_) => TheirScreen(...))).
   }
 
   // What the user typed in the active field.
