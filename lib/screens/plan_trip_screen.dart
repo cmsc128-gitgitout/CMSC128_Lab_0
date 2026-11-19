@@ -148,9 +148,14 @@ class _PlanTripScreenState extends State<PlanTripScreen> {
 
   // Second line under a stop's name: terminal flag or the modes serving it.
   String _detailFor(TransitProvider transit, BoardingPoint stop) {
-    if (stop.isTerminal) return 'Terminal';
-    final modes = transit.modeNamesServing(stop.id);
-    return modes.isEmpty ? 'Boarding point' : modes.join(' · ');
+    final nos = transit.routeNosServing(stop.id);
+    final shown = nos.take(4).join(', ');
+    final more = nos.length > 4 ? ' +${nos.length - 4}' : '';
+    final parts = [
+      if (stop.isTerminal) 'Terminal',
+      if (nos.isNotEmpty) 'Routes $shown$more',
+    ];
+    return parts.isEmpty ? 'Boarding point' : parts.join(' · ');
   }
 
   // Recents shown while the active field is empty.

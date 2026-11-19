@@ -85,8 +85,6 @@ class TransitProvider extends ChangeNotifier {
     await prefs.setStringList(_recentKey, _recentSearches);
   }
 
-
-
 // filter by route number, route name, transport mode, or stops 
   List<TransitRoute> get filteredRoutes {
     final q = _searchQuery.trim().toLowerCase();
@@ -117,6 +115,14 @@ class TransitProvider extends ChangeNotifier {
         keywords.every((k) => words.any((w) => w.startsWith(k)));
     return allWordStarts ? 1 : 2;
   }
+
+  // Route numbers of the routes that pass through [stopId], sorted.
+  List<String> routeNosServing(String stopId) => (_routes
+      .where((r) => r.stopIds.contains(stopId))
+      .map((r) => r.routeNo)
+      .toSet()
+      .toList())
+    ..sort();
 
   // Stops whose name contains every word in [query], best matches first.
   // Pure lookup only and does not touch the shared search state, so Plan trip and Network search can use it at the same time.
