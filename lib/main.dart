@@ -7,7 +7,7 @@ import 'firebase_options.dart';
 import 'package:mapbox_maps_flutter/mapbox_maps_flutter.dart';
 
 // screens imports
-import 'screens/home_screen.dart';
+import 'screens/title_screen.dart';
 
 // providers and services imports
 import 'providers/transit_provider.dart';
@@ -50,7 +50,7 @@ class TaraLargaApp extends StatelessWidget {
       title: 'Tara Larga!',
       debugShowCheckedModeBanner: false,
       theme: AppTheme.light,
-      home: const HomeScreen(),
+      home: const TitleScreen(),
     );
   }
 }
