@@ -3,7 +3,10 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:tara_larga/widgets/location_access_dialog.dart';
 
 void main() {
-  Future<void> pumpDialog(WidgetTester tester) async {
+  Future<void> pumpDialog(
+    WidgetTester tester, {
+    required Future<void> Function() onAllow,
+  }) async {
     await tester.pumpWidget(
       MaterialApp(
         home: Scaffold(
@@ -11,7 +14,7 @@ void main() {
             builder: (context) => TextButton(
               onPressed: () => showDialog<void>(
                 context: context,
-                builder: (_) => const LocationAccessDialog(),
+                builder: (_) => LocationAccessDialog(onAllow: onAllow),
               ),
               child: const Text('Open dialog'),
             ),
@@ -26,7 +29,7 @@ void main() {
   testWidgets('shows location access copy and allow button', (
     WidgetTester tester,
   ) async {
-    await pumpDialog(tester);
+    await pumpDialog(tester, onAllow: () async {});
 
     expect(
       find.text("Allow Tara Larga to access this device's location?"),
@@ -42,15 +45,27 @@ void main() {
     expect(find.text('Not now'), findsOneWidget);
   });
 
-  testWidgets('allow and not now dismiss the dialog', (
+  testWidgets('allow invokes the permission request and dismisses the dialog', (
     WidgetTester tester,
   ) async {
-    for (final buttonLabel in ['Allow location access', 'Not now']) {
-      await pumpDialog(tester);
-      await tester.tap(find.text(buttonLabel));
-      await tester.pumpAndSettle();
+    var permissionRequested = false;
+    await pumpDialog(tester, onAllow: () async => permissionRequested = true);
+    await tester.tap(find.text('Allow location access'));
+    await tester.pumpAndSettle();
 
-      expect(find.byType(LocationAccessDialog), findsNothing);
-    }
+    expect(permissionRequested, isTrue);
+    expect(find.byType(LocationAccessDialog), findsNothing);
+  });
+
+  testWidgets('not now dismisses without requesting permission', (
+    WidgetTester tester,
+  ) async {
+    var permissionRequested = false;
+    await pumpDialog(tester, onAllow: () async => permissionRequested = true);
+    await tester.tap(find.text('Not now'));
+    await tester.pumpAndSettle();
+
+    expect(permissionRequested, isFalse);
+    expect(find.byType(LocationAccessDialog), findsNothing);
   });
 }
