@@ -2,21 +2,20 @@ import 'dart:convert';
 
 import 'package:flutter/material.dart';
 import 'package:mapbox_maps_flutter/mapbox_maps_flutter.dart';
+
 import '../models/transit_route.dart';
 
 class IloiloMap extends StatefulWidget {
-  const IloiloMap({
-    super.key,
-    this.routes = const [],
-  });
+  const IloiloMap({super.key, this.routes = const []});
   final List<TransitRoute> routes;
 
   @override
-  State<IloiloMap> createState() => _IloiloMapState();
+  IloiloMapState createState() => IloiloMapState();
 }
 
-class _IloiloMapState extends State<IloiloMap> {
+class IloiloMapState extends State<IloiloMap> {
   MapboxMap? _map;
+  bool _mapReady = false;
   bool _styleLoaded = false;
   //used for drawing map since mapbox need data and how it will look
   static const _sourceId = 'routes-source'; //for GeoJsonSource
@@ -26,36 +25,58 @@ class _IloiloMapState extends State<IloiloMap> {
     '#800080', //  red
     '#1565C0', // Blue
     '#FFFF00',
-    '#00FF00'
+    '#00FF00',
   ];
 
-////redraw whenever transitRoute passes updated route list
+  Future<bool> centerOnLocation({
+    required double latitude,
+    required double longitude,
+  }) async {
+    final map = _map;
+    if (map == null || !_mapReady) return false;
+
+    await map.setBounds(
+      CameraBoundsOptions(bounds: InfiniteCoordinateBounds()),
+    );
+    await map.setCamera(
+      CameraOptions(
+        center: Point(coordinates: Position(longitude, latitude)),
+        zoom: 15,
+      ),
+    );
+    return true;
+  }
+
+  ////redraw whenever transitRoute passes updated route list
   @override
   void didUpdateWidget(covariant IloiloMap oldWidget) {
     super.didUpdateWidget(oldWidget);
-    if (oldWidget.routes!= widget.routes) {
+    if (oldWidget.routes != widget.routes) {
       _drawRoutes();
     }
   }
 
-  //convert transitroute obj to geojson string 
+  //convert transitroute obj to geojson string
   String _routesGeoJson() => jsonEncode({
-        'type': 'FeatureCollection',
-        'features': [
-          for (int i = 0; i < widget.routes.length; i++)
-            if (widget.routes[i].path.length >= 2)
-              {
-                'type': 'Feature',
-                'properties': {
-                  'route_no': widget.routes[i].routeNo,
-                  'color': _routeColors[i % _routeColors.length], 
-                },
-                'geometry': {'type': 'LineString', 'coordinates': widget.routes[i].path},
-              },
-        ],
-      });
+    'type': 'FeatureCollection',
+    'features': [
+      for (int i = 0; i < widget.routes.length; i++)
+        if (widget.routes[i].path.length >= 2)
+          {
+            'type': 'Feature',
+            'properties': {
+              'route_no': widget.routes[i].routeNo,
+              'color': _routeColors[i % _routeColors.length],
+            },
+            'geometry': {
+              'type': 'LineString',
+              'coordinates': widget.routes[i].path,
+            },
+          },
+    ],
+  });
 
-  //use drawing properties and coords 
+  //use drawing properties and coords
   Future<void> _drawRoutes() async {
     final map = _map;
     if (map == null || !_styleLoaded) return;
@@ -111,6 +132,7 @@ class _IloiloMapState extends State<IloiloMap> {
             maxZoom: 18,
           ),
         );
+        _mapReady = true;
       },
       //dDraw only after the style is ready
       onStyleLoadedListener: (_) {
