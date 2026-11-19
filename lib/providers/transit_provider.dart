@@ -6,8 +6,9 @@ import '../models/boarding_point.dart';
 import '../models/transit_route.dart';
 import '../models/transport_mode.dart';
 import '../services/transit_service.dart';
+import '../models/trip_option.dart';
 
-import '../models/trip_options.dart';
+import '../utils/route_finder.dart';
 
 // Holds the loaded transit data and notifies the UI when it changes.
 class TransitProvider extends ChangeNotifier {
@@ -219,81 +220,94 @@ class TransitProvider extends ChangeNotifier {
     return modeIds.map(modeName).where((n) => n.isNotEmpty).toList();
   }
 
-  List<TripOptions> planTrip ({
-    required String fromStopId,
-    required String toStopId,
-    int maxTransfers = 2 //default is 2 transfers
+  // List<TripOptions> planTrip ({
+  //   required String fromStopId,
+  //   required String toStopId,
+  //   int maxTransfers = 2 //default is 2 transfers
 
-  }) {
+  // }) {
 
-    //check if given params empty
-    if(fromStopId.isEmpty || toStopId.isEmpty) {
-      return [];
+  //   //check if given params empty
+  //   if(fromStopId.isEmpty || toStopId.isEmpty) {
+  //     return [];
+  //   }
+  //   //check if given the same 
+  //   if(fromStopId == toStopId) {
+  //     return [];
+  //   }
+
+  //   //to store the trips
+  //   final List<TripOptions> results = [];
+  //   // Queue holds partial journeys (lists of legs) still being explored
+  //   final List<List<TripLeg>> queue = [];
+
+  //   //  add to queue with every route that starts at fromStopId
+  //   for (final route in _routes) {
+  //     final startIdx = route.stopIds.indexOf(fromStopId);
+  //     if (startIdx == -1) continue;
+
+  //     for (int i = startIdx + 1; i < route.stopIds.length; i++) {
+  //       final nextStop = route.stopIds[i];
+  //       final leg = TripLeg(
+  //         route: route,
+  //         startStopId: fromStopId,
+  //         endStopId: nextStop,
+  //       );
+
+  //       if (nextStop == toStopId) { 
+  //         results.add(TripOptions(legs: [leg])); //direct trip
+  //       } else if (maxTransfers>0) {
+  //         queue.add([leg]); 
+  //       }
+  //     }
+  //   }
+
+  //   // expan by level
+  //   while (queue.isNotEmpty) {
+  //     final currentLegs = queue.removeAt(0);
+  //     final lastLeg = currentLegs.last;
+  //     final usedRouteIds = currentLegs.map((l) => l.route.id).toSet();
+
+  //     for (final route in _routes) {
+  //       if (usedRouteIds.contains(route.id)) continue; // avoid same route
+
+  //       final boardIdx=route.stopIds.indexOf(lastLeg.endStopId);
+  //       if (boardIdx == -1) continue;
+
+  //       for (int i = boardIdx + 1; i < route.stopIds.length; i++) {
+  //         final nextStop = route.stopIds[i];
+  //         final newLegs = [
+  //           ...currentLegs,
+  //           TripLeg(
+  //             route: route,
+  //             startStopId: lastLeg.endStopId,
+  //             endStopId: nextStop,
+  //           ),
+  //         ]; 
+
+  //         if (nextStop == toStopId) {
+  //           results.add(TripOptions(legs: newLegs));
+  //         } else if (newLegs.length <= maxTransfers) {
+  //           queue.add(newLegs);
+  //         }
+  //       }
+  //     }
+  //   }
+
+  //   return results;
+  // }
+
+  List<TripOption> planTrip({
+      required BoardingPoint origin,
+      required BoardingPoint destination,
+    }) {
+      return findTrips(
+        origin: origin,
+        destination: destination,
+        routes: _routes,
+        stopById: stopById,
+        modeName: modeName,
+      );
     }
-    //check if given the same 
-    if(fromStopId == toStopId) {
-      return [];
-    }
-
-    //to store the trips
-    final List<TripOptions> results = [];
-    // Queue holds partial journeys (lists of legs) still being explored
-    final List<List<TripLeg>> queue = [];
-
-    //  add to queue with every route that starts at fromStopId
-    for (final route in _routes) {
-      final startIdx = route.stopIds.indexOf(fromStopId);
-      if (startIdx == -1) continue;
-
-      for (int i = startIdx + 1; i < route.stopIds.length; i++) {
-        final nextStop = route.stopIds[i];
-        final leg = TripLeg(
-          route: route,
-          startStopId: fromStopId,
-          endStopId: nextStop,
-        );
-
-        if (nextStop == toStopId) { 
-          results.add(TripOptions(legs: [leg])); //direct trip
-        } else if (maxTransfers>0) {
-          queue.add([leg]); 
-        }
-      }
-    }
-
-    // expan by level
-    while (queue.isNotEmpty) {
-      final currentLegs = queue.removeAt(0);
-      final lastLeg = currentLegs.last;
-      final usedRouteIds = currentLegs.map((l) => l.route.id).toSet();
-
-      for (final route in _routes) {
-        if (usedRouteIds.contains(route.id)) continue; // avoid same route
-
-        final boardIdx=route.stopIds.indexOf(lastLeg.endStopId);
-        if (boardIdx == -1) continue;
-
-        for (int i = boardIdx + 1; i < route.stopIds.length; i++) {
-          final nextStop = route.stopIds[i];
-          final newLegs = [
-            ...currentLegs,
-            TripLeg(
-              route: route,
-              startStopId: lastLeg.endStopId,
-              endStopId: nextStop,
-            ),
-          ]; 
-
-          if (nextStop == toStopId) {
-            results.add(TripOptions(legs: newLegs));
-          } else if (newLegs.length <= maxTransfers) {
-            queue.add(newLegs);
-          }
-        }
-      }
-    }
-
-    return results;
-  }
 
 }
