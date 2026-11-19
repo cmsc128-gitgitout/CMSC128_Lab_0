@@ -29,25 +29,42 @@ class LocationField extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final radius = BorderRadius.circular(14);
-    return TextField(
-      controller: controller,
-      focusNode: focusNode,
-      autofocus: autofocus,
-      onChanged: onChanged,
-      decoration: InputDecoration(
-        hintText: hint,
-        filled: true,
-        fillColor: const Color(0xFFF1F4F8),
-        isDense: true,
-        contentPadding: const EdgeInsets.symmetric(vertical: 16),
-        prefixIcon: Icon(icon, size: iconSize, color: iconColor),
-        enabledBorder: OutlineInputBorder(
-          borderRadius: radius,
-          borderSide: BorderSide.none,
-        ),
-        focusedBorder: OutlineInputBorder(
-          borderRadius: radius,
-          borderSide: const BorderSide(color: AppTheme.primary, width: 2),
+
+    // Rebuilds on every text change so the X shows and hides by itself.
+    return ValueListenableBuilder<TextEditingValue>(
+      valueListenable: controller,
+      builder: (context, value, _) => TextField(
+        controller: controller,
+        focusNode: focusNode,
+        autofocus: autofocus,
+        onChanged: onChanged,
+        decoration: InputDecoration(
+          hintText: hint,
+          filled: true,
+          fillColor: const Color(0xFFF1F4F8),
+          isDense: true,
+          contentPadding: const EdgeInsets.symmetric(vertical: 16),
+          prefixIcon: Icon(icon, size: iconSize, color: iconColor),
+          // Clear X: only when there is text
+          suffixIcon: value.text.isEmpty
+              ? null
+              : IconButton(
+                  icon: const Icon(Icons.close, size: 20),
+                  tooltip: 'Clear',
+                  onPressed: () {
+                    controller.clear();
+                    onChanged?.call(''); // clear does not fire onChanged itself
+                    focusNode.requestFocus(); // keep typing in this field
+                  },
+                ),
+          enabledBorder: OutlineInputBorder(
+            borderRadius: radius,
+            borderSide: BorderSide.none,
+          ),
+          focusedBorder: OutlineInputBorder(
+            borderRadius: radius,
+            borderSide: const BorderSide(color: AppTheme.primary, width: 2),
+          ),
         ),
       ),
     );

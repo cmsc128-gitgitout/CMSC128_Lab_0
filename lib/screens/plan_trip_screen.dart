@@ -117,14 +117,26 @@ class _PlanTripScreenState extends State<PlanTripScreen> {
       }
     });
 
-    if (_active == _Field.origin && _destCtrl.text.isEmpty) {
+    // Both fields filled: the route results step will start here.
+    _focusNextEmpty(_active);
+  }
+
+  // After filling a field: focus the other one if empty, else close the keyboard.
+  void _focusNextEmpty(_Field filled) {
+    if (filled == _Field.origin && _destCtrl.text.isEmpty) {
       _destFocus.requestFocus();
-    } else if (_active == _Field.destination && _originCtrl.text.isEmpty) {
+    } else if (filled == _Field.destination && _originCtrl.text.isEmpty) {
       _originFocus.requestFocus();
     } else {
-      // Both fields are filled. The route results step will start here.
       FocusScope.of(context).unfocus();
+      _openRouteResults();
     }
+  }
+
+  // Single hand-off point to the route results step.
+  // TODO: replace with the real route results screen.
+  void _openRouteResults() {
+    Navigator.of(context).popUntil((route) => route.isFirst); // change it to this Navigator.of(context).push(MaterialPageRoute(builder: (_) => TheirScreen(...))).
   }
 
   // What the user typed in the active field.
@@ -136,9 +148,14 @@ class _PlanTripScreenState extends State<PlanTripScreen> {
 
   // Second line under a stop's name: terminal flag or the modes serving it.
   String _detailFor(TransitProvider transit, BoardingPoint stop) {
-    if (stop.isTerminal) return 'Terminal';
-    final modes = transit.modeNamesServing(stop.id);
-    return modes.isEmpty ? 'Boarding point' : modes.join(' · ');
+    final nos = transit.routeNosServing(stop.id);
+    final shown = nos.take(4).join(', ');
+    final more = nos.length > 4 ? ' +${nos.length - 4}' : '';
+    final parts = [
+      if (stop.isTerminal) 'Terminal',
+      if (nos.isNotEmpty) 'Routes $shown$more',
+    ];
+    return parts.isEmpty ? 'Boarding point' : parts.join(' · ');
   }
 
   // Recents shown while the active field is empty.
@@ -153,20 +170,32 @@ class _PlanTripScreenState extends State<PlanTripScreen> {
 
   // Live suggestions from provider's stops search. 
   // Matching recents come first so they keep their clock icon.
-  List<BoardingPoint> _search(TransitProvider transit, String query) {
-    final matches = transit.searchStops(query);
-    final recent = matches.where((p) => _isRecent(transit, p));
-    final others = matches.where((p) => !_isRecent(transit, p));
-    return [...recent, ...others];
-  }
+  List<BoardingPoint> _search(TransitProvider transit, String query) => transit.searchStops(query);
 
-  // Opens the map pin picker. 
-  // The skeleton screen does not return a location yet. 
-  // TODO: Handle its result here once it does (a pin is not a BoardingPoint, so that needs the wider shared place model).
-  void _chooseOnMap() {
-    Navigator.of(context).push(
-      MaterialPageRoute(builder: (_) => const ChooseOnMapScreen()),
+  // Opens the map pin picker and fills the field that was active when tapped.
+  // TODO: store picked.lat / picked.lng once the shared place model exists.
+  Future<void> _chooseOnMap() async {
+    // Capture now: focus (and so _active) can change while the map is open.
+    final target = _active;
+    
+
+    final picked = await Navigator.of(context).push<({double lat, double lng, String name})>(
+      MaterialPageRoute(
+        builder: (_) => ChooseOnMapScreen(isStart: target == _Field.origin)),
     );
+    if (picked == null || !mounted) return;
+
+    setState(() {
+      _setText(target == _Field.origin ? _originCtrl : _destCtrl, picked.name);
+      // a pin is not a BoardingPoint, so clear any stop stored for this field.
+      if (target == _Field.origin) {
+        _origin = null;
+      } else {
+        _destination = null;
+      }
+    });
+
+    _focusNextEmpty(target);
   }
 
   // Container below the fields:
@@ -218,14 +247,48 @@ class _PlanTripScreenState extends State<PlanTripScreen> {
             ),
           )
         else ...[
-          SectionLabel(isTyping ? 'SUGGESTIONS' : 'RECENT'),
-          for (final stop in stops)
-          PlaceTile(
-            name: stop.name,
-            detail: _detailFor(transit, stop),
-            isRecent: _isRecent(transit, stop),
-            onTap: () => _pick(stop)
+          SectionLabel(
+            isTyping ? 'SUGGESTIONS' : 'RECENT',
+            trailing: isTyping
+              ? null
+              : TextButton(
+                onPressed: transit.clearRecentSearches, 
+                style: TextButton.styleFrom(
+                  minimumSize: const Size(0, 32),
+                  padding: const EdgeInsets.symmetric(horizontal: 8),
+                  tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                ),
+                child: const Text('Clear'),
+              ),
           ),
+          for (final stop in stops)
+            if (isTyping)
+              // Suggestions: plain tile
+              PlaceTile(
+                name: stop.name,
+                detail: _detailFor(transit, stop),
+                isRecent: _isRecent(transit, stop),
+                onTap: () => _pick(stop),
+              )
+            else 
+              // Recents: tile with a remove X on the right
+              Row(
+                children: [
+                  Expanded(
+                    child: PlaceTile(
+                      name: stop.name,
+                      detail: _detailFor(transit, stop),
+                      isRecent: true,
+                      onTap: () => _pick(stop),
+                    ),
+                  ),
+                  IconButton(
+                    icon: const Icon(Icons.close, size: 20),
+                    tooltip: 'Remove',
+                    onPressed: () => transit.removeRecentSearch(stop.name),
+                  ),
+                ],
+              ),
         ]
       ],
     );
@@ -281,7 +344,7 @@ class _PlanTripScreenState extends State<PlanTripScreen> {
                           focusNode: _destFocus, 
                           hint: 'Where to?', 
                           icon: Icons.location_on_outlined,
-                          iconColor: const Color(0xFFD32F2F),
+                          iconColor: AppTheme.destination,
                           autofocus: true,            
                           onChanged: (_) => setState(() => _destination = null),    // destination field
                         ),
