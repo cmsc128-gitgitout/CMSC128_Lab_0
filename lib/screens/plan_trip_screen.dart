@@ -167,7 +167,7 @@ class _PlanTripScreenState extends State<PlanTripScreen> {
 
   // Opens the map pin picker and fills the field that was active when tapped.
   // TODO: store picked.lat / picked.lng once the shared place model exists.
-  void _chooseOnMap() {
+  Future<void> _chooseOnMap() async {
     // Capture now: focus (and so _active) can change while the map is open.
     final target = _active;
 
