@@ -1,7 +1,14 @@
+import 'dart:async';
+
+import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
+import 'package:geolocator/geolocator.dart';
 //for reading route data
 import 'package:provider/provider.dart';
+
 import '../providers/transit_provider.dart';
+import '../services/location_permission_service.dart';
 
 import '../widgets/ai_assistant_button.dart';
 import '../widgets/map_buttons.dart';
@@ -18,13 +25,155 @@ class ExploreScreen extends StatefulWidget {
 }
 
 class _ExploreScreenState extends State<ExploreScreen> {
-  // Placeholder: replace with a real permission check in feat/user-location.
-  bool _locationGranted = false;
+  final _mapKey = GlobalKey<IloiloMapState>();
+  final _locationPermissionService = LocationPermissionService();
+  Position? _currentPosition;
+  bool _isLocating = false;
 
-  void _toast(BuildContext context, String message) {
+  void _toast(BuildContext context, String message, {SnackBarAction? action}) {
     ScaffoldMessenger.of(context)
       ..hideCurrentSnackBar()
-      ..showSnackBar(SnackBar(content: Text(message)));
+      ..showSnackBar(SnackBar(content: Text(message), action: action));
+  }
+
+  Future<void> _showMyLocation() async {
+    if (_isLocating) return;
+    setState(() => _isLocating = true);
+
+    try {
+      final outcome = await _locationPermissionService.requestAccess();
+      if (!mounted) return;
+      if (outcome != LocationAccessOutcome.granted) {
+        _showLocationAccessOutcome(outcome);
+        return;
+      }
+
+      final position = await Geolocator.getCurrentPosition(
+        locationSettings: const LocationSettings(
+          accuracy: LocationAccuracy.high,
+          timeLimit: Duration(seconds: 15),
+        ),
+      );
+      if (!mounted) return;
+
+      final mapState = _mapKey.currentState;
+      if (mapState == null) {
+        _toast(context, 'The map is still loading. Try again shortly.');
+        return;
+      }
+      final mapCentered = await mapState.centerOnLocation(
+        latitude: position.latitude,
+        longitude: position.longitude,
+      );
+      if (!mounted) return;
+      if (!mapCentered) {
+        _toast(context, 'The map is still loading. Try again shortly.');
+        return;
+      }
+
+      setState(() => _currentPosition = position);
+    } on LocationServiceDisabledException {
+      if (mounted) {
+        _showLocationAccessOutcome(LocationAccessOutcome.servicesDisabled);
+      }
+    } on PermissionDeniedException {
+      if (mounted) _showLocationPermissionSettings();
+    } on TimeoutException {
+      if (mounted) {
+        _toast(
+          context,
+          "Couldn't get your location. Check your GPS signal and try again.",
+        );
+      }
+    } on PlatformException catch (error) {
+      if (mounted) {
+        _toast(
+          context,
+          'Could not get or display your location: ${error.message ?? error.code}',
+        );
+      }
+    } finally {
+      if (mounted) setState(() => _isLocating = false);
+    }
+  }
+
+  void _showLocationAccessOutcome(LocationAccessOutcome outcome) {
+    switch (outcome) {
+      case LocationAccessOutcome.granted:
+        return;
+      case LocationAccessOutcome.servicesDisabled:
+        if (kIsWeb) {
+          _toast(context, 'Enable location services in your browser settings.');
+        } else {
+          _toast(
+            context,
+            'Location services are turned off. Enable them to use location.',
+            action: SnackBarAction(
+              label: 'Settings',
+              onPressed: _openLocationSettings,
+            ),
+          );
+        }
+      case LocationAccessOutcome.denied:
+        _toast(context, 'Location permission was denied.');
+      case LocationAccessOutcome.deniedForever:
+        _showLocationPermissionSettings();
+      case LocationAccessOutcome.unableToDetermine:
+        _toast(context, 'Could not determine location permission.');
+    }
+  }
+
+  void _showLocationPermissionSettings() {
+    if (kIsWeb) {
+      _toast(context, 'Enable location access in your browser settings.');
+    } else {
+      _toast(
+        context,
+        'Location access is blocked. Enable it in app settings.',
+        action: SnackBarAction(
+          label: 'App settings',
+          onPressed: _openAppSettings,
+        ),
+      );
+    }
+  }
+
+  Future<void> _openLocationSettings() async {
+    try {
+      final opened = await Geolocator.openLocationSettings();
+      if (mounted && !opened) {
+        _toast(
+          context,
+          'Could not open location settings. Enable them manually.',
+        );
+      }
+    } on PlatformException catch (error) {
+      if (mounted) {
+        _toast(
+          context,
+          'Could not open location settings: ${error.message ?? error.code}',
+        );
+      }
+    }
+  }
+
+  Future<void> _openAppSettings() async {
+    try {
+      final opened = await Geolocator.openAppSettings();
+      if (mounted && !opened) {
+        _toast(
+          context,
+          'Could not open app settings. Enable location access manually.',
+        );
+      }
+    } on PlatformException catch (error) {
+      if (mounted) {
+        _toast(
+          context,
+          'Could not open app settings: ${error.message ?? error.code}',
+        );
+      }
+    }
   }
 
   void _showSuggestedRoutes() {
@@ -42,12 +191,13 @@ class _ExploreScreenState extends State<ExploreScreen> {
   @override
   Widget build(BuildContext context) {
     //read list of routes then awlays sync with transitprovider updates
-    final routes = context.watch<TransitProvider>().routes; 
+    final routes = context.watch<TransitProvider>().routes;
     return Stack(
       children: [
-        // Layer 1: map 
-        Positioned.fill(child: IloiloMap(routes: routes)),  //pass livee data to map
-
+        // Layer 1: map
+        Positioned.fill(
+          child: IloiloMap(key: _mapKey, routes: routes),
+        ), //pass livee data to map
         // Map controls sit below the route sheet.
         Align(
           alignment: Alignment.bottomLeft,
@@ -86,11 +236,8 @@ class _ExploreScreenState extends State<ExploreScreen> {
                 MapButton(
                   icon: Icons.my_location,
                   tooltip: 'My location',
-                  // Temporary: toggles the glow to indicate active button
-                  active: _locationGranted,
-                  onPressed: () =>
-                      setState(() => _locationGranted = !_locationGranted),
-                  // onPressed: () => _toast(context, 'TODO: center on location'),
+                  active: _currentPosition != null,
+                  onPressed: _showMyLocation,
                 ),
                 const SizedBox(height: 12),
                 MapButton(
@@ -112,9 +259,12 @@ class _ExploreScreenState extends State<ExploreScreen> {
             padding: const EdgeInsets.fromLTRB(16, 50, 16, 0),
             child: SearchPill(
               hint: 'Where to?',
-              readOnly: true,       // tap target only; typing happens on the plan trip screen
+              readOnly: true, // tap target only; typing happens on the plan trip screen
               onTap: () => Navigator.of(context).push(
-                MaterialPageRoute(builder: (_) => PlanTripScreen(locEnabled: _locationGranted))
+                MaterialPageRoute(
+                  builder: (_) =>
+                      PlanTripScreen(locEnabled: _currentPosition != null),
+                ),
               ),
             ),
           ),
