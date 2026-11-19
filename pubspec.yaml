@@ -43,6 +43,7 @@ dependencies:
   shared_preferences: ^2.5.6
   flutter_native_splash: ^2.4.8
   flutter_dotenv: ^6.0.2
+  geolocator: ^14.1.2
 
 dev_dependencies:
   flutter_test:
