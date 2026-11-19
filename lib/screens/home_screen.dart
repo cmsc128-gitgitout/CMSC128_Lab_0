@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
+import 'package:geolocator/geolocator.dart';
 
 import 'explore_screen.dart';
 import 'network_screen.dart';
@@ -24,9 +26,41 @@ class _HomeScreenState extends State<HomeScreen> {
       showDialog<void>(
         context: context,
         barrierDismissible: false,
-        builder: (_) => const LocationAccessDialog(),
+        builder: (_) =>
+            LocationAccessDialog(onAllow: _requestLocationPermission),
       );
     });
+  }
+
+  Future<void> _requestLocationPermission() async {
+    try {
+      final permission = await Geolocator.requestPermission();
+      if (!mounted) return;
+
+      switch (permission) {
+        case LocationPermission.denied:
+          _showLocationMessage('Location permission was denied.');
+        case LocationPermission.deniedForever:
+          _showLocationMessage(
+            'Location access is blocked. Enable it in your device or browser settings.',
+          );
+        case LocationPermission.unableToDetermine:
+          _showLocationMessage('Could not determine location permission.');
+        case LocationPermission.whileInUse:
+        case LocationPermission.always:
+          break;
+      }
+    } on PlatformException catch (error) {
+      if (!mounted) return;
+      _showLocationMessage(
+        'Could not request location permission: ${error.message ?? error.code}',
+      );
+    }
+  }
+
+  void _showLocationMessage(String message) {
+    ScaffoldMessenger.of(context)
+        .showSnackBar(SnackBar(content: Text(message)));
   }
 
   static const _tabs = <Widget>[
