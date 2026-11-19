@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter/services.dart';
@@ -21,8 +23,13 @@ class _HomeScreenState extends State<HomeScreen> {
   int _index = 0;
   final _locationPermissionService = LocationPermissionService();
   final _exploreKey = GlobalKey<ExploreScreenState>();
+  bool _locationDialogVisible = false;
+  bool _locationRequestInProgress = false;
   late final _tabs = <Widget>[
-    ExploreScreen(key: _exploreKey),
+    ExploreScreen(
+      key: _exploreKey,
+      onRequestLocationAccess: _showLocationAccessDialog,
+    ),
     const NetworkScreen(),
     const ChatbotScreen(),
   ];
@@ -32,22 +39,37 @@ class _HomeScreenState extends State<HomeScreen> {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (!mounted) return;
-      showDialog<void>(
+      unawaited(_showLocationAccessDialog());
+    });
+  }
+
+  Future<void> _showLocationAccessDialog() async {
+    if (!mounted || _locationDialogVisible || _locationRequestInProgress) {
+      return;
+    }
+    _locationDialogVisible = true;
+    try {
+      await showDialog<void>(
         context: context,
         barrierDismissible: false,
         builder: (_) =>
             LocationAccessDialog(onAllow: _requestLocationPermission),
       );
-    });
+    } finally {
+      _locationDialogVisible = false;
+    }
   }
 
   Future<void> _requestLocationPermission() async {
+    if (_locationRequestInProgress) return;
+    _locationRequestInProgress = true;
     try {
       final outcome = await _locationPermissionService.requestAccess();
       if (!mounted) return;
 
       switch (outcome) {
         case LocationAccessOutcome.servicesDisabled:
+          _exploreKey.currentState?.setLocationAccessGranted(false);
           if (kIsWeb) {
             _showLocationMessage(
               'Location services are turned off. Enable location in your browser settings.',
@@ -62,8 +84,10 @@ class _HomeScreenState extends State<HomeScreen> {
             );
           }
         case LocationAccessOutcome.denied:
+          _exploreKey.currentState?.setLocationAccessGranted(false);
           _showLocationMessage('Location permission was denied.');
         case LocationAccessOutcome.deniedForever:
+          _exploreKey.currentState?.setLocationAccessGranted(false);
           if (kIsWeb) {
             _showLocationMessage(
               'Location access is blocked. Enable it in your browser settings.',
@@ -78,16 +102,21 @@ class _HomeScreenState extends State<HomeScreen> {
             );
           }
         case LocationAccessOutcome.unableToDetermine:
+          _exploreKey.currentState?.setLocationAccessGranted(false);
           _showLocationMessage('Could not determine location permission.');
         case LocationAccessOutcome.granted:
-          _exploreKey.currentState?.setLocationAccessGranted(true);
+          final explore = _exploreKey.currentState;
+          if (explore != null) await explore.enableLocationAndCenter();
           break;
       }
     } on PlatformException catch (error) {
       if (!mounted) return;
+      _exploreKey.currentState?.setLocationAccessGranted(false);
       _showLocationMessage(
         'Could not request location permission: ${error.message ?? error.code}',
       );
+    } finally {
+      _locationRequestInProgress = false;
     }
   }
 

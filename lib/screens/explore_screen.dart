@@ -18,7 +18,9 @@ import '../widgets/suggested_routes_sheet.dart';
 import 'plan_trip_screen.dart';
 
 class ExploreScreen extends StatefulWidget {
-  const ExploreScreen({super.key});
+  const ExploreScreen({super.key, required this.onRequestLocationAccess});
+
+  final VoidCallback onRequestLocationAccess;
 
   @override
   ExploreScreenState createState() => ExploreScreenState();
@@ -46,18 +48,33 @@ class ExploreScreenState extends State<ExploreScreen> {
   }
 
   Future<void> _showMyLocation() async {
+    if (!_locationAccessGranted) {
+      widget.onRequestLocationAccess();
+      return;
+    }
+    await _locateCurrentUser(checkPermission: true);
+  }
+
+  Future<void> enableLocationAndCenter() async {
+    if (!mounted) return;
+    setLocationAccessGranted(true);
+    await _locateCurrentUser(checkPermission: false);
+  }
+
+  Future<void> _locateCurrentUser({required bool checkPermission}) async {
     if (_isLocating) return;
     setState(() => _isLocating = true);
 
     try {
-      final outcome = await _locationPermissionService.requestAccess();
-      if (!mounted) return;
-      if (outcome != LocationAccessOutcome.granted) {
-        setLocationAccessGranted(false);
-        _showLocationAccessOutcome(outcome);
-        return;
+      if (checkPermission) {
+        final outcome = await _locationPermissionService.requestAccess();
+        if (!mounted) return;
+        if (outcome != LocationAccessOutcome.granted) {
+          setLocationAccessGranted(false);
+          _showLocationAccessOutcome(outcome);
+          return;
+        }
       }
-      setLocationAccessGranted(true);
 
       final position = await Geolocator.getCurrentPosition(
         locationSettings: const LocationSettings(
@@ -85,10 +102,14 @@ class ExploreScreenState extends State<ExploreScreen> {
       setState(() => _currentPosition = position);
     } on LocationServiceDisabledException {
       if (mounted) {
+        setLocationAccessGranted(false);
         _showLocationAccessOutcome(LocationAccessOutcome.servicesDisabled);
       }
     } on PermissionDeniedException {
-      if (mounted) _showLocationPermissionSettings();
+      if (mounted) {
+        setLocationAccessGranted(false);
+        _showLocationPermissionSettings();
+      }
     } on TimeoutException {
       if (mounted) {
         _toast(
