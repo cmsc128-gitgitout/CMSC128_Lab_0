@@ -247,14 +247,48 @@ class _PlanTripScreenState extends State<PlanTripScreen> {
             ),
           )
         else ...[
-          SectionLabel(isTyping ? 'SUGGESTIONS' : 'RECENT'),
-          for (final stop in stops)
-          PlaceTile(
-            name: stop.name,
-            detail: _detailFor(transit, stop),
-            isRecent: _isRecent(transit, stop),
-            onTap: () => _pick(stop)
+          SectionLabel(
+            isTyping ? 'SUGGESTIONS' : 'RECENT',
+            trailing: isTyping
+              ? null
+              : TextButton(
+                onPressed: transit.clearRecentSearches, 
+                style: TextButton.styleFrom(
+                  minimumSize: const Size(0, 32),
+                  padding: const EdgeInsets.symmetric(horizontal: 8),
+                  tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                ),
+                child: const Text('Clear'),
+              ),
           ),
+          for (final stop in stops)
+            if (isTyping)
+              // Suggestions: plain tile
+              PlaceTile(
+                name: stop.name,
+                detail: _detailFor(transit, stop),
+                isRecent: _isRecent(transit, stop),
+                onTap: () => _pick(stop),
+              )
+            else 
+              // Recents: tile with a remove X on the right
+              Row(
+                children: [
+                  Expanded(
+                    child: PlaceTile(
+                      name: stop.name,
+                      detail: _detailFor(transit, stop),
+                      isRecent: true,
+                      onTap: () => _pick(stop),
+                    ),
+                  ),
+                  IconButton(
+                    icon: const Icon(Icons.close, size: 20),
+                    tooltip: 'Remove',
+                    onPressed: () => transit.removeRecentSearch(stop.name),
+                  ),
+                ],
+              ),
         ]
       ],
     );
