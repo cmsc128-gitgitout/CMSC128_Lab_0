@@ -20,6 +20,12 @@ class HomeScreen extends StatefulWidget {
 class _HomeScreenState extends State<HomeScreen> {
   int _index = 0;
   final _locationPermissionService = LocationPermissionService();
+  final _exploreKey = GlobalKey<ExploreScreenState>();
+  late final _tabs = <Widget>[
+    ExploreScreen(key: _exploreKey),
+    const NetworkScreen(),
+    const ChatbotScreen(),
+  ];
 
   @override
   void initState() {
@@ -74,6 +80,7 @@ class _HomeScreenState extends State<HomeScreen> {
         case LocationAccessOutcome.unableToDetermine:
           _showLocationMessage('Could not determine location permission.');
         case LocationAccessOutcome.granted:
+          _exploreKey.currentState?.setLocationAccessGranted(true);
           break;
       }
     } on PlatformException catch (error) {
@@ -123,12 +130,6 @@ class _HomeScreenState extends State<HomeScreen> {
       ..hideCurrentSnackBar()
       ..showSnackBar(SnackBar(content: Text(message), action: action));
   }
-
-  static const _tabs = <Widget>[
-    ExploreScreen(),
-    NetworkScreen(),
-    ChatbotScreen(),
-  ];
 
   @override
   Widget build(BuildContext context) {
