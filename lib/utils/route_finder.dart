@@ -186,7 +186,6 @@ List<TripOption> findTrips({
   required List<TransitRoute> routes,
   required BoardingPoint? Function(String stopId) stopById,
   required String Function(String modeId) modeName,
-  int maxRides = 3, // 3 rides = 2 transfers
   double transferWaitMinutes = 5, // estimate, not from the database
 }) {
   if (origin.id == destination.id) return [];
@@ -228,9 +227,7 @@ List<TripOption> findTrips({
           break; // riding past the destination is pointless
         }
 
-        if (rides.length + 1 < maxRides) {
-          search(stopId, [...rides, ride], {...visited, stopId});
-        }
+        search(stopId, [...rides, ride], {...visited, stopId});
       }
     }
   }
