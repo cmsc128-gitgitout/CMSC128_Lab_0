@@ -8,6 +8,7 @@ import '../widgets/location_field.dart';
 import '../widgets/place_tile.dart';
 import '../widgets/search_section_label.dart';
 import 'choose_on_map_screen.dart';
+import 'route_results_screen.dart';
 
 // Which of the two inputs the user is currently editing.
 enum _Field { origin, destination }
@@ -122,9 +123,32 @@ class _PlanTripScreenState extends State<PlanTripScreen> {
     } else if (_active == _Field.destination && _originCtrl.text.isEmpty) {
       _originFocus.requestFocus();
     } else {
-      // Both fields are filled. The route results step will start here.
-      FocusScope.of(context).unfocus();
+      _maybeShowRoutes();
     }
+  }
+
+  // Opens the results screen once both stops are picked from the list.
+  void _maybeShowRoutes() {
+    final origin = _origin;
+    final destination = _destination;
+    if (origin == null || destination == null) return;
+
+    if (origin.id == destination.id) {
+      ScaffoldMessenger.of(context)
+        ..hideCurrentSnackBar()
+        ..showSnackBar(
+          const SnackBar(content: Text('Start and destination are the same')),
+        );
+      return;
+    }
+
+    FocusScope.of(context).unfocus();
+    Navigator.of(context).push(
+      MaterialPageRoute(
+        builder: (_) =>
+            RouteResultsScreen(origin: origin, destination: destination),
+      ),
+    );
   }
 
   // What the user typed in the active field.
