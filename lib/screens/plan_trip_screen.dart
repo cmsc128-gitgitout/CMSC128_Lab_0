@@ -127,6 +127,17 @@ class _PlanTripScreenState extends State<PlanTripScreen> {
     }
   }
 
+  // After filling a field: focus the other one if empty, else close the keyboard.
+  void _focusNextEmpty(_Field filled) {
+    if (filled == _Field.origin && _destCtrl.text.isEmpty) {
+      _destFocus.requestFocus();
+    } else if (filled == _Field.destination && _originCtrl.text.isEmpty) {
+      _originFocus.requestFocus();
+    } else {
+      FocusScope.of(context).unfocus();
+    }
+  }
+
   // What the user typed in the active field.
   // The "Your location" label is not a search, so it counts as empty and recents show instead.
   String get _query {
@@ -160,13 +171,28 @@ class _PlanTripScreenState extends State<PlanTripScreen> {
     return [...recent, ...others];
   }
 
-  // Opens the map pin picker. 
-  // The skeleton screen does not return a location yet. 
-  // TODO: Handle its result here once it does (a pin is not a BoardingPoint, so that needs the wider shared place model).
+  // Opens the map pin picker and fills the field that was active when tapped.
+  // TODO: store picked.lat / picked.lng once the shared place model exists.
   void _chooseOnMap() {
-    Navigator.of(context).push(
+    // Capture now: focus (and so _active) can change while the map is open.
+    final target = _active;
+
+    final picked = await Navigator.of(context).push<({double lat, double lng, String name})>(
       MaterialPageRoute(builder: (_) => const ChooseOnMapScreen()),
     );
+    if (picked == null || !mounted) return;
+
+    setState(() {
+      _setText(target == _Field.origin ? _originCtrl : _destCtrl, picked.name);
+      // a pin is not a BoardingPoint, so clear any stop stored for this field.
+      if (target == _Field.origin) {
+        _origin = null;
+      } else {
+        _destination = null;
+      }
+    });
+
+    _focusNextEmpty(target);
   }
 
   // Container below the fields:
