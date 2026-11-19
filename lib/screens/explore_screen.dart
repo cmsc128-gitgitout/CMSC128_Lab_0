@@ -21,14 +21,23 @@ class ExploreScreen extends StatefulWidget {
   const ExploreScreen({super.key});
 
   @override
-  State<ExploreScreen> createState() => _ExploreScreenState();
+  ExploreScreenState createState() => ExploreScreenState();
 }
 
-class _ExploreScreenState extends State<ExploreScreen> {
+class ExploreScreenState extends State<ExploreScreen> {
   final _mapKey = GlobalKey<IloiloMapState>();
   final _locationPermissionService = LocationPermissionService();
   Position? _currentPosition;
+  bool _locationAccessGranted = false;
   bool _isLocating = false;
+
+  void setLocationAccessGranted(bool granted) {
+    if (!mounted) return;
+    setState(() {
+      _locationAccessGranted = granted;
+      if (!granted) _currentPosition = null;
+    });
+  }
 
   void _toast(BuildContext context, String message, {SnackBarAction? action}) {
     ScaffoldMessenger.of(context)
@@ -44,9 +53,11 @@ class _ExploreScreenState extends State<ExploreScreen> {
       final outcome = await _locationPermissionService.requestAccess();
       if (!mounted) return;
       if (outcome != LocationAccessOutcome.granted) {
+        setLocationAccessGranted(false);
         _showLocationAccessOutcome(outcome);
         return;
       }
+      setLocationAccessGranted(true);
 
       final position = await Geolocator.getCurrentPosition(
         locationSettings: const LocationSettings(
@@ -196,7 +207,11 @@ class _ExploreScreenState extends State<ExploreScreen> {
       children: [
         // Layer 1: map
         Positioned.fill(
-          child: IloiloMap(key: _mapKey, routes: routes),
+          child: IloiloMap(
+            key: _mapKey,
+            routes: routes,
+            showLocationPuck: _locationAccessGranted,
+          ),
         ), //pass livee data to map
         // Map controls sit below the route sheet.
         Align(
