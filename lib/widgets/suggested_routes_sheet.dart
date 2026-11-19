@@ -1,65 +1,64 @@
 import 'package:flutter/material.dart';
 
+import '../models/trip_option.dart';
+import '../utils/trip_colors.dart';
+
 class SuggestedRoutesSheet extends StatefulWidget {
-  const SuggestedRoutesSheet({super.key});
+  const SuggestedRoutesSheet({
+    super.key,
+    required this.options,
+    required this.onSelected,
+  });
+
+  final List<TripOption> options; // must not be empty (the screen checks)
+  final ValueChanged<TripOption> onSelected;
 
   @override
   State<SuggestedRoutesSheet> createState() => _SuggestedRoutesSheetState();
 }
 
 class _SuggestedRoutesSheetState extends State<SuggestedRoutesSheet> {
-  static const _routes = [
-    _SuggestedRoute(
-      durationMinutes: 15,
-      distanceKm: 6.2,
-      transfers: 0,
-      fare: 19,
-      legs: ['Walk', 'Jeep', 'Walk'],
-      color: Color(0xFFF5C518),
-    ),
-    _SuggestedRoute(
-      durationMinutes: 20,
-      distanceKm: 7.4,
-      transfers: 2,
-      fare: 39,
-      legs: ['Walk', 'Jeep', 'E-bus', 'Walk'],
-      color: Color(0xFF65D957),
-    ),
-    _SuggestedRoute(
-      durationMinutes: 25,
-      distanceKm: 8.1,
-      transfers: 0,
-      fare: 45,
-      legs: ['Walk', 'Jeep', 'Walk'],
-      color: Color(0xFFB05AFF),
-    ),
-  ];
-
   static const _sortOptions = ['Fastest', 'Cheapest', 'Fewest Transfers'];
 
   int _selectedSort = 0;
-  _SuggestedRoute? _selectedRoute; // null = highlight the first card
 
-  List<_SuggestedRoute> get _sortedRoutes {
-    final routes = List<_SuggestedRoute>.of(_routes);
+  int _byTime(TripOption a, TripOption b) =>
+      a.durationMinutes.compareTo(b.durationMinutes);
+
+  List<TripOption> get _sortedOptions {
+    final list = List<TripOption>.of(widget.options);
     switch (_selectedSort) {
-      case 1:
-        routes.sort((a, b) => a.fare.compareTo(b.fare));
-      case 2:
-        routes.sort((a, b) => a.transfers.compareTo(b.transfers));
-      default:
-        routes.sort((a, b) => a.durationMinutes.compareTo(b.durationMinutes));
+      case 1: // Cheapest: fare, ties by duration
+        list.sort((a, b) {
+          final c = a.fare.compareTo(b.fare);
+          return c != 0 ? c : _byTime(a, b);
+        });
+      case 2: // Fewest transfers: transfers, ties by duration
+        list.sort((a, b) {
+          final c = a.transfers.compareTo(b.transfers);
+          return c != 0 ? c : _byTime(a, b);
+        });
+      default: // Fastest: duration, ties by transfers (matches the finder)
+        list.sort((a, b) {
+          final c = _byTime(a, b);
+          return c != 0 ? c : a.transfers.compareTo(b.transfers);
+        });
     }
-    return routes;
+    return list;
   }
+
+  void _changeSort(int index) {
+    if (index == _selectedSort) return;
+    setState(() => _selectedSort = index);
+  }
+
+  void _select(TripOption option) => widget.onSelected(option);
 
   @override
   Widget build(BuildContext context) {
-    final sorted = _sortedRoutes;
-    final selected = _selectedRoute ?? sorted.first;
+    final sorted = _sortedOptions;
 
     return DraggableScrollableSheet(
-      expand: false,
       initialChildSize: 0.58,
       minChildSize: 0.32,
       maxChildSize: 0.86,
@@ -73,6 +72,7 @@ class _SuggestedRoutesSheetState extends State<SuggestedRoutesSheet> {
           clipBehavior: Clip.antiAlias,
           child: ListView(
             controller: scrollController,
+            physics: const AlwaysScrollableScrollPhysics(),
             padding: const EdgeInsets.fromLTRB(14, 8, 14, 16),
             children: [
               Center(
@@ -94,21 +94,18 @@ class _SuggestedRoutesSheetState extends State<SuggestedRoutesSheet> {
                       child: _SortOption(
                         label: _sortOptions[i],
                         selected: _selectedSort == i,
-                        onTap: () => setState(() {
-                          _selectedSort = i;
-                          _selectedRoute = null;
-                        }),
+                        onTap: () => _changeSort(i),
                       ),
                     ),
                   ],
                 ],
               ),
               const SizedBox(height: 12),
-              for (final route in sorted)
+              for (final option in sorted)
                 _RouteOptionCard(
-                  route: route,
-                  selected: identical(route, selected),
-                  onTap: () => setState(() => _selectedRoute = route),
+                  option: option,
+                  color: tripColor(widget.options.indexOf(option)),
+                  onTap: () => _select(option),
                 ),
             ],
           ),
@@ -167,35 +164,39 @@ class _SortOption extends StatelessWidget {
 
 class _RouteOptionCard extends StatelessWidget {
   const _RouteOptionCard({
-    required this.route,
-    required this.selected,
+    required this.option,
+    required this.color,
     required this.onTap,
   });
 
-  final _SuggestedRoute route;
-  final bool selected;
+  final TripOption option;
+  final Color color; // accent stripe, matches the line on the map
   final VoidCallback onTap;
+
+  String _peso(double v) =>
+      '₱${v == v.roundToDouble() ? v.toStringAsFixed(0) : v.toStringAsFixed(2)}';
 
   @override
   Widget build(BuildContext context) {
+    // Km is hidden when the data has no length_km (distance would be 0).
+    final details = [
+      if (option.distanceKm > 0) '${option.distanceKm.toStringAsFixed(1)} km',
+      '${option.transfers} transfers',
+    ].join(' · ');
+
     return Padding(
       padding: const EdgeInsets.only(bottom: 10),
       child: Material(
-        color: selected ? const Color(0xFFE3F0FD) : const Color(0xFFEEF3F8),
+        color: const Color(0xFFEEF3F8),
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(10),
-          side: BorderSide(
-            color: selected ? const Color(0xFF1261A6) : const Color(0xFFD6E0E9),
-            width: selected ? 1.4 : 1,
-          ),
+          side: const BorderSide(color: Color(0xFFD6E0E9)),
         ),
         child: InkWell(
           borderRadius: BorderRadius.circular(10),
           onTap: onTap,
           child: Padding(
             padding: const EdgeInsets.fromLTRB(10, 10, 10, 8),
-            // IntrinsicHeight is required: a Row with `stretch` inside a
-            // ListView has unbounded height and would otherwise collapse/throw.
             child: IntrinsicHeight(
               child: Row(
                 crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -203,7 +204,7 @@ class _RouteOptionCard extends StatelessWidget {
                   Container(
                     width: 4,
                     decoration: BoxDecoration(
-                      color: route.color,
+                      color: color,
                       borderRadius: BorderRadius.circular(4),
                     ),
                   ),
@@ -215,7 +216,7 @@ class _RouteOptionCard extends StatelessWidget {
                         Row(
                           children: [
                             Text(
-                              '${route.durationMinutes} min',
+                              '${option.durationMinutes} min',
                               style: const TextStyle(
                                 fontSize: 15,
                                 fontWeight: FontWeight.w700,
@@ -223,7 +224,7 @@ class _RouteOptionCard extends StatelessWidget {
                             ),
                             const Spacer(),
                             Text(
-                              '₱${route.fare}',
+                              _peso(option.fare),
                               style: const TextStyle(
                                 color: Color(0xFF1261A6),
                                 fontSize: 15,
@@ -240,15 +241,14 @@ class _RouteOptionCard extends StatelessWidget {
                         ),
                         const SizedBox(height: 2),
                         Text(
-                          '${route.distanceKm.toStringAsFixed(1)} km · '
-                          '${route.transfers} transfers',
+                          details,
                           style: const TextStyle(
                             fontSize: 12,
                             color: Color(0xFF475467),
                           ),
                         ),
                         const SizedBox(height: 8),
-                        _RouteLegs(legs: route.legs),
+                        _RouteLegs(legs: option.legs),
                       ],
                     ),
                   ),
@@ -265,10 +265,12 @@ class _RouteOptionCard extends StatelessWidget {
 class _RouteLegs extends StatelessWidget {
   const _RouteLegs({required this.legs});
 
-  final List<String> legs;
+  final List<TripLeg> legs;
 
-  static const _walkColor = Color(0xFFB4BBC6);
   static const _rideColor = Color(0xFF1261A6);
+
+  String _label(TripLeg leg) =>
+      leg.modeName.isEmpty ? leg.routeNo : '${leg.modeName}, ${leg.routeNo}';
 
   @override
   Widget build(BuildContext context) {
@@ -278,25 +280,23 @@ class _RouteLegs extends StatelessWidget {
         for (var i = 0; i < legs.length; i++) ...[
           if (i > 0) const SizedBox(width: 4),
           Expanded(
-            flex: legs[i] == 'Walk' ? 1 : 3,
+            flex: 3,
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                // Explicit width/height + DecoratedBox so the bar always
-                // paints, even inside loose Column constraints.
                 SizedBox(
                   width: double.infinity,
                   height: 4,
                   child: DecoratedBox(
                     decoration: BoxDecoration(
-                      color: legs[i] == 'Walk' ? _walkColor : _rideColor,
+                      color: _rideColor,
                       borderRadius: BorderRadius.circular(4),
                     ),
                   ),
                 ),
                 const SizedBox(height: 4),
                 Text(
-                  legs[i],
+                  _label(legs[i]),
                   maxLines: 1,
                   softWrap: false,
                   overflow: TextOverflow.visible,
@@ -312,22 +312,4 @@ class _RouteLegs extends StatelessWidget {
       ],
     );
   }
-}
-
-class _SuggestedRoute {
-  const _SuggestedRoute({
-    required this.durationMinutes,
-    required this.distanceKm,
-    required this.transfers,
-    required this.fare,
-    required this.legs,
-    required this.color,
-  });
-
-  final int durationMinutes;
-  final double distanceKm;
-  final int transfers;
-  final int fare;
-  final List<String> legs;
-  final Color color; // accent stripe on the left of the card
 }
