@@ -15,6 +15,8 @@ class AppTheme {
   static const Color navSelected = primary;
   static const Color navUnselected = Color(0xFF5F6368);
 
+  static const Color destination = Color(0xFFD32F2F); // destination pin/icon red
+
   static ThemeData get light => ThemeData(
         useMaterial3: true,
         colorScheme: ColorScheme.fromSeed(seedColor: primary).copyWith(

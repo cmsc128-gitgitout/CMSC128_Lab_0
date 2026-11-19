@@ -2,12 +2,15 @@ import 'package:flutter/material.dart';
 import 'package:mapbox_maps_flutter/mapbox_maps_flutter.dart';
 
 import '../services/geocoding_service.dart';
+import '../utils/app_theme.dart';
 import '../widgets/iloilo_map.dart';
 
 // Choose on map screen: the user pans the map under a fixed pin at the center.
 // On confirm, the map's center coordinates are returned to the caller via Navigator.pop.
 class ChooseOnMapScreen extends StatefulWidget {
-  const ChooseOnMapScreen({super.key});
+  const ChooseOnMapScreen({super.key, this.pinColor = AppTheme.destination});
+  // Pin color: blue for start, red for destination.
+  final Color pinColor;
 
   @override
   State<ChooseOnMapScreen> createState() => _ChooseOnMapScreenState();
@@ -77,11 +80,11 @@ class _ChooseOnMapScreenState extends State<ChooseOnMapScreen> {
           // Layer 2: fixed center pin. 
           // IgnorePointer lets touches pass thru to the map so panning still works under the pin.
           // The bottom padding shifts the icon up so its tip, not its middle, sits on the exact map center.
-          const IgnorePointer(
+          IgnorePointer(
             child: Center(
               child: Padding(
-                padding: EdgeInsets.only(bottom: 48),
-                child: Icon(Icons.location_on, size: 48, color: Colors.red),
+                padding: const EdgeInsets.only(bottom: 48),
+                child: Icon(Icons.location_on, size: 48, color: widget.pinColor),
               ),
             ),
           ),

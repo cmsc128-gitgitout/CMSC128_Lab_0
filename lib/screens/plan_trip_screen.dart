@@ -170,9 +170,15 @@ class _PlanTripScreenState extends State<PlanTripScreen> {
   Future<void> _chooseOnMap() async {
     // Capture now: focus (and so _active) can change while the map is open.
     final target = _active;
+    
 
     final picked = await Navigator.of(context).push<({double lat, double lng, String name})>(
-      MaterialPageRoute(builder: (_) => const ChooseOnMapScreen()),
+      MaterialPageRoute(
+        builder: (_) => ChooseOnMapScreen(
+          pinColor: target == _Field.origin
+            ? AppTheme.primary
+            : AppTheme.destination,
+        )),
     );
     if (picked == null || !mounted) return;
 
@@ -301,7 +307,7 @@ class _PlanTripScreenState extends State<PlanTripScreen> {
                           focusNode: _destFocus, 
                           hint: 'Where to?', 
                           icon: Icons.location_on_outlined,
-                          iconColor: const Color(0xFFD32F2F),
+                          iconColor: AppTheme.destination,
                           autofocus: true,            
                           onChanged: (_) => setState(() => _destination = null),    // destination field
                         ),
