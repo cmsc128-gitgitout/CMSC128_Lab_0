@@ -117,7 +117,6 @@ class _Ride {
 TripOption _buildOption(
   List<_Ride> rides,
   String Function(String modeId) modeName,
-  double transferWaitMinutes,
 ) {
   final legs = <TripLeg>[];
 
@@ -163,9 +162,7 @@ TripOption _buildOption(
     ));
   }
 
-  final rideMinutes = legs.fold<int>(0, (sum, l) => sum + l.minutes);
-  final duration =
-      (rideMinutes + (legs.length - 1) * transferWaitMinutes).round();
+  final duration = legs.fold<int>(0, (sum, l) => sum + l.minutes);
   final fare = legs.fold<double>(0, (sum, l) => sum + l.fare);
 
   return TripOption(
@@ -186,7 +183,6 @@ List<TripOption> findTrips({
   required List<TransitRoute> routes,
   required BoardingPoint? Function(String stopId) stopById,
   required String Function(String modeId) modeName,
-  double transferWaitMinutes = 5, // estimate, not from the database
 }) {
   if (origin.id == destination.id) return [];
 
@@ -217,7 +213,7 @@ List<TripOption> findTrips({
 
         if (stopId == destination.id) {
           final chain = [...rides, ride];
-          final option = _buildOption(chain, modeName, transferWaitMinutes);
+          final option = _buildOption(chain, modeName);
           final key = chain.map((r) => r.prepared.route.id).join('>');
           final existing = results[key];
           if (existing == null ||
