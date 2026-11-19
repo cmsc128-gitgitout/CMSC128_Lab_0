@@ -85,8 +85,6 @@ class TransitProvider extends ChangeNotifier {
     await prefs.setStringList(_recentKey, _recentSearches);
   }
 
-
-
 // filter by route number, route name, transport mode, or stops 
   List<TransitRoute> get filteredRoutes {
     final q = _searchQuery.trim().toLowerCase();
@@ -107,18 +105,47 @@ class TransitProvider extends ChangeNotifier {
     }).toList();
   }
 
-  // Stops whose name contains every word in [query]
+  // 0 = name starts with the query, 
+  // 1 = every word typed starts a word in the name, 
+  // 2 = the text only appears somewhere inside the name.
+  int _rank(String name, String q, List<String> keywords) {
+    if (name.startsWith(q)) return 0;
+    final words = name.split(RegExp(r'[\s\-/,.()]+'));
+    final allWordStarts =
+        keywords.every((k) => words.any((w) => w.startsWith(k)));
+    return allWordStarts ? 1 : 2;
+  }
+
+  // Route numbers of the routes that pass through [stopId], sorted.
+  List<String> routeNosServing(String stopId) => (_routes
+      .where((r) => r.stopIds.contains(stopId))
+      .map((r) => r.routeNo)
+      .toSet()
+      .toList())
+    ..sort();
+
+  // Stops whose name contains every word in [query], best matches first.
   // Pure lookup only and does not touch the shared search state, so Plan trip and Network search can use it at the same time.
   List<BoardingPoint> searchStops(String query) {
     final q = query.trim().toLowerCase();
     if (q.isEmpty) return [];
 
     final keywords = q.split(RegExp(r'\s+'));
-    return (_points.values.where((p) {
+    final matches = _points.values.where((p) {
       final name = p.name.toLowerCase();
       return keywords.every((word) => name.contains(word));
-    }).toList())
-      ..sort((a, b) => a.name.compareTo(b.name));
+    }).toList();
+
+    if (q.length == 1) {
+      matches.removeWhere((p) => _rank(p.name.toLowerCase(), q, keywords) == 2);
+    }
+
+    matches.sort((a, b) {
+      final byRank = _rank(a.name.toLowerCase(), q, keywords)
+          .compareTo(_rank(b.name.toLowerCase(), q, keywords));
+      return byRank != 0 ? byRank : a.name.compareTo(b.name);
+    });
+    return matches;
   }
 
 

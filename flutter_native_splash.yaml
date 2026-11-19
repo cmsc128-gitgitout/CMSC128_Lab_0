@@ -1,0 +1,12 @@
+flutter_native_splash:
+  color: "#F7F7F7"
+  image: assets/images/tara_larga_logo.png
+  background_image: assets/images/title_screen_bg.png
+  android: true
+  ios: true
+  web: false
+
+  android_12:
+    image: assets/images/transparent_splash.png
+    color: "#F7F7F7"
+    icon_background_color: "#F7F7F7"
