@@ -176,11 +176,7 @@ class _PlanTripScreenState extends State<PlanTripScreen> {
 
     final picked = await Navigator.of(context).push<({double lat, double lng, String name})>(
       MaterialPageRoute(
-        builder: (_) => ChooseOnMapScreen(
-          pinColor: target == _Field.origin
-            ? AppTheme.primary
-            : AppTheme.destination,
-        )),
+        builder: (_) => ChooseOnMapScreen(isStart: target == _Field.origin)),
     );
     if (picked == null || !mounted) return;
 

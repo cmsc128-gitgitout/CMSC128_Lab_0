@@ -8,9 +8,10 @@ import '../widgets/iloilo_map.dart';
 // Choose on map screen: the user pans the map under a fixed pin at the center.
 // On confirm, the map's center coordinates are returned to the caller via Navigator.pop.
 class ChooseOnMapScreen extends StatefulWidget {
-  const ChooseOnMapScreen({super.key, this.pinColor = AppTheme.destination});
-  // Pin color: blue for start, red for destination.
-  final Color pinColor;
+  const ChooseOnMapScreen({super.key, this.isStart = false});
+  
+  // true: blue dot (start), false: red pin (destination)
+  final bool isStart;
 
   @override
   State<ChooseOnMapScreen> createState() => _ChooseOnMapScreenState();
@@ -79,13 +80,24 @@ class _ChooseOnMapScreenState extends State<ChooseOnMapScreen> {
 
           // Layer 2: fixed center pin. 
           // IgnorePointer lets touches pass thru to the map so panning still works under the pin.
-          // The bottom padding shifts the icon up so its tip, not its middle, sits on the exact map center.
           IgnorePointer(
             child: Center(
-              child: Padding(
-                padding: const EdgeInsets.only(bottom: 48),
-                child: Icon(Icons.location_on, size: 48, color: widget.pinColor),
-              ),
+              child: widget.isStart
+                ? Container(
+                  width: 20,
+                  height: 20,
+                  decoration: BoxDecoration(
+                    color: AppTheme.primary,
+                    shape: BoxShape.circle,
+                    border: Border.all(color: Colors.white, width: 3),
+                    boxShadow: const [BoxShadow(blurRadius: 4, color: Colors.black)],
+                  ),
+                )
+                // Tip of the pin sits on the exact map center
+                : const Padding(
+                    padding: EdgeInsets.only(bottom: 48),
+                    child: Icon(Icons.location_on, size: 48, color: AppTheme.destination),
+                  ),
             ),
           ),
 
