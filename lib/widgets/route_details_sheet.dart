@@ -161,15 +161,15 @@ class _TripLegCard extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Container(
-            width: 30,
-            height: 30,
+            width: 35,
+            height: 35,
             decoration: const BoxDecoration(
               color: _jeepneyBadgeBlue,
               shape: BoxShape.circle,
             ),
             child: const Icon(
               Icons.directions_bus_filled,
-              size: 17,
+              size: 20,
               color: Colors.white,
             ),
           ),
@@ -186,7 +186,7 @@ class _TripLegCard extends StatelessWidget {
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
                         style: const TextStyle(
-                          fontSize: 11,
+                          fontSize: 15,
                           fontWeight: FontWeight.w700,
                           height: 1.15,
                         ),
@@ -196,7 +196,7 @@ class _TripLegCard extends StatelessWidget {
                       fare,
                       style: const TextStyle(
                         color: _blue,
-                        fontSize: 11,
+                        fontSize: 15,
                         fontWeight: FontWeight.w800,
                       ),
                     ),
@@ -208,7 +208,7 @@ class _TripLegCard extends StatelessWidget {
                       child: Text(
                         '${leg.minutes} min ride',
                         style: const TextStyle(
-                          fontSize: 9,
+                          fontSize: 12,
                           color: Color(0xFF667085),
                           height: 1.15,
                         ),
@@ -218,7 +218,7 @@ class _TripLegCard extends StatelessWidget {
                       Text(
                         distance,
                         style: const TextStyle(
-                          fontSize: 9,
+                          fontSize: 12,
                           color: Color(0xFF667085),
                           height: 1.15,
                         ),
@@ -248,7 +248,7 @@ class _StopDetail extends StatelessWidget {
     return Text.rich(
       TextSpan(
         style: const TextStyle(
-          fontSize: 9,
+          fontSize: 11,
           color: Color(0xFF344054),
           height: 1.15,
         ),
