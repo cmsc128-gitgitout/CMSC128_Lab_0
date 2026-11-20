@@ -4,6 +4,7 @@ import '../models/boarding_point.dart';
 import '../models/transit_route.dart';
 import '../models/trip_option.dart';
 
+
 // PLACEHOLDER until the backend defines a fare rule.
 double fareForRide(TransitRoute r) => r.minFare;
 
