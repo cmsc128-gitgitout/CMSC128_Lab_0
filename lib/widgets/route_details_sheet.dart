@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import '../models/trip_option.dart';
 
 const _blue = Color(0xFF1261A6);
+const _jeepneyBadgeBlue = Color(0xFF101BFF);
 
 class RouteDetailsSheet extends StatelessWidget {
   const RouteDetailsSheet({
@@ -146,7 +147,6 @@ class _TripLegCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final mode = leg.modeName.isEmpty ? 'Transit' : leg.modeName;
-    final routeLabel = leg.routeNo.isNotEmpty ? leg.routeNo : leg.routeName;
     final distance = _distanceText();
 
     return Container(
@@ -155,6 +155,7 @@ class _TripLegCard extends StatelessWidget {
       decoration: BoxDecoration(
         color: const Color(0xFFEEF3F8),
         borderRadius: BorderRadius.circular(9),
+        border: Border.all(color: const Color(0xFFE2EAF2)),
       ),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -163,13 +164,13 @@ class _TripLegCard extends StatelessWidget {
             width: 30,
             height: 30,
             decoration: const BoxDecoration(
-              color: Color(0xFFD9E8FA),
+              color: _jeepneyBadgeBlue,
               shape: BoxShape.circle,
             ),
             child: const Icon(
               Icons.directions_bus_filled,
               size: 17,
-              color: _blue,
+              color: Colors.white,
             ),
           ),
           const SizedBox(width: 9),
@@ -185,8 +186,9 @@ class _TripLegCard extends StatelessWidget {
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
                         style: const TextStyle(
-                          fontSize: 12,
+                          fontSize: 11,
                           fontWeight: FontWeight.w700,
+                          height: 1.15,
                         ),
                       ),
                     ),
@@ -194,7 +196,7 @@ class _TripLegCard extends StatelessWidget {
                       fare,
                       style: const TextStyle(
                         color: _blue,
-                        fontSize: 12,
+                        fontSize: 11,
                         fontWeight: FontWeight.w800,
                       ),
                     ),
@@ -204,13 +206,11 @@ class _TripLegCard extends StatelessWidget {
                   children: [
                     Expanded(
                       child: Text(
-                        [
-                          if (routeLabel.isNotEmpty) routeLabel,
-                          '${leg.minutes} min ride',
-                        ].join(' · '),
+                        '${leg.minutes} min ride',
                         style: const TextStyle(
-                          fontSize: 10,
+                          fontSize: 9,
                           color: Color(0xFF667085),
+                          height: 1.15,
                         ),
                       ),
                     ),
@@ -220,28 +220,48 @@ class _TripLegCard extends StatelessWidget {
                         style: const TextStyle(
                           fontSize: 9,
                           color: Color(0xFF667085),
+                          height: 1.15,
                         ),
                       ),
                   ],
                 ),
                 const SizedBox(height: 3),
-                Text(
-                  'SAKAY DIRI  ${leg.from.name}',
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                  style: const TextStyle(fontSize: 9, color: Color(0xFF344054)),
-                ),
-                Text(
-                  'NAOG DIRI  ${leg.to.name}',
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                  style: const TextStyle(fontSize: 9, color: Color(0xFF344054)),
-                ),
+                _StopDetail(label: 'SAKAY DIRI', stopName: leg.from.name),
+                _StopDetail(label: 'NAOG DIRI', stopName: leg.to.name),
               ],
             ),
           ),
         ],
       ),
+    );
+  }
+}
+
+class _StopDetail extends StatelessWidget {
+  const _StopDetail({required this.label, required this.stopName});
+
+  final String label;
+  final String stopName;
+
+  @override
+  Widget build(BuildContext context) {
+    return Text.rich(
+      TextSpan(
+        style: const TextStyle(
+          fontSize: 9,
+          color: Color(0xFF344054),
+          height: 1.15,
+        ),
+        children: [
+          TextSpan(
+            text: '$label  ',
+            style: const TextStyle(color: _blue, fontWeight: FontWeight.w700),
+          ),
+          TextSpan(text: stopName),
+        ],
+      ),
+      maxLines: 1,
+      overflow: TextOverflow.ellipsis,
     );
   }
 }
