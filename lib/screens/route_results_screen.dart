@@ -34,8 +34,9 @@ class _RouteResultsScreenState extends State<RouteResultsScreen> {
   late BoardingPoint _destination;
 
   List<TripOption> _options = const [];
+  TripOption? _selectedOption;
 
-  // What the map draws. Built only when the options change.
+  // Map lines and stop markers for the current selection.
   List<MapLine> _lines = const [];
   List<MapMarker> _markers = const [];
 
@@ -60,16 +61,37 @@ class _RouteResultsScreenState extends State<RouteResultsScreen> {
     _buildMapData();
   }
 
-  // Every option is drawn at once, in the same color as its card stripe.
   void _buildMapData() {
-    _lines = [
-      for (var i = _options.length - 1; i >= 0; i--)
-        MapLine(coordinates: _options[i].path, colorHex: tripColorHex(i)),
-    ];
+    final selected = _selectedOption;
+    _lines = selected == null
+        ? [
+            for (var i = _options.length - 1; i >= 0; i--)
+              MapLine(coordinates: _options[i].path, colorHex: tripColorHex(i)),
+          ]
+        : [
+            MapLine(
+              coordinates: selected.path,
+              colorHex: tripColorHex(_options.indexOf(selected)),
+            ),
+          ];
     _markers = [
       MapMarker(lat: _origin.lat, lng: _origin.lng, colorHex: _startHex),
       MapMarker(lat: _destination.lat, lng: _destination.lng, colorHex: _endHex),
     ];
+  }
+
+  void _selectOption(TripOption option) {
+    setState(() {
+      _selectedOption = option;
+      _buildMapData();
+    });
+  }
+
+  void _showSuggestedRoutes() {
+    setState(() {
+      _selectedOption = null;
+      _buildMapData();
+    });
   }
 
   void _swap() {
@@ -85,11 +107,12 @@ class _RouteResultsScreenState extends State<RouteResultsScreen> {
   Widget build(BuildContext context) {
     final size = MediaQuery.of(context).size;
     final topInset = MediaQuery.of(context).padding.top;
+    final selectedOption = _selectedOption;
 
     return Scaffold(
       body: Stack(
         children: [
-          // Map: draws every option and the two stops.
+          // Map: draws all options until one is selected.
           Positioned.fill(
             child: IloiloMap(
               lines: _lines,
@@ -104,23 +127,38 @@ class _RouteResultsScreenState extends State<RouteResultsScreen> {
             ),
           ),
 
-          // Top card: back, start / destination, swap.
-          Positioned(
-            top: 0,
-            left: 0,
-            right: 0,
-            child: SafeArea(
-              child: Padding(
-                padding: const EdgeInsets.fromLTRB(16, 8, 16, 0),
-                child: _TripHeader(
-                  origin: _origin.name,
-                  destination: _destination.name,
-                  onBack: () => Navigator.of(context).maybePop(),
-                  onSwap: _swap,
+          if (selectedOption == null)
+            Positioned(
+              top: 0,
+              left: 0,
+              right: 0,
+              child: SafeArea(
+                child: Padding(
+                  padding: const EdgeInsets.fromLTRB(16, 8, 16, 0),
+                  child: _TripHeader(
+                    origin: _origin.name,
+                    destination: _destination.name,
+                    onBack: () => Navigator.of(context).maybePop(),
+                    onSwap: _swap,
+                  ),
+                ),
+              ),
+            )
+          else
+            Positioned(
+              top: topInset + 16,
+              left: 16,
+              child: Material(
+                color: const Color(0xFF1261A6),
+                elevation: 5,
+                shape: const CircleBorder(),
+                child: IconButton(
+                  tooltip: 'Back to suggested routes',
+                  onPressed: _showSuggestedRoutes,
+                  icon: const Icon(Icons.arrow_back, color: Colors.white),
                 ),
               ),
             ),
-          ),
 
           if (_options.isEmpty)
             Align(
@@ -130,38 +168,32 @@ class _RouteResultsScreenState extends State<RouteResultsScreen> {
                 destination: _destination.name,
               ),
             )
+          else if (selectedOption != null)
+            Positioned(
+              left: 0,
+              right: 0,
+              bottom: 0,
+              height: size.height * 0.52,
+              child: RouteDetailsSheet(
+                option: selectedOption,
+                onStart: () {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(
+                      content: Text(
+                        'Turn-by-turn navigation is not available yet.',
+                      ),
+                    ),
+                  );
+                },
+              ),
+            )
           else
             Positioned.fill(
               child: SuggestedRoutesSheet(
                 // New options = fresh sheet (selection and sort reset).
                 key: ObjectKey(_options),
                 options: _options,
-                onSelected: (o) {
-                  showModalBottomSheet<void>(
-                    context: context,
-                    isScrollControlled: true,
-                    useSafeArea: true,
-                    backgroundColor: Colors.transparent,
-                    builder: (sheetContext) => FractionallySizedBox(
-                      heightFactor: 0.9,
-                      child: RouteDetailsSheet(
-                        option: o,
-                        origin: _origin,
-                        destination: _destination,
-                        onStart: () {
-                          Navigator.of(sheetContext).pop();
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            const SnackBar(
-                              content: Text(
-                                'Turn-by-turn navigation is not available yet.',
-                              ),
-                            ),
-                          );
-                        },
-                      ),
-                    ),
-                  );
-                },
+                onSelected: _selectOption,
               ),
             ),
         ],
