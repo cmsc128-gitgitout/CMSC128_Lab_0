@@ -3,14 +3,14 @@ import 'package:flutter/material.dart';
 // One palette for both the map lines and the card stripes.
 // Blue and red are left out: they mark the start and destination.
 const _hex = [
-  '#F5C518', // yellow
-  '#65D957', // green
-  '#B05AFF', // purple
-  '#FF8A3D', // orange
-  '#F06292', // pink
-  '#26C6DA', // teal
-  '#8D6E63', // brown
-  '#9CCC65', // lime
+  '#D97706', // deeop amber
+  '#15803D', // Forest Green
+  '#6D28D9', // Royal purple
+  '#0F766E', // Deep teal 
+  '#BE185D', // Deep magenta 
+  '#4338CA', // Deep indigo 
+  '#B45309', // Burnt copper
+  '#0369A1', // Deep ocean cyna
 ];
 
 String tripColorHex(int index) => _hex[index % _hex.length];

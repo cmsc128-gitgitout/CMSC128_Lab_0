@@ -1,6 +1,6 @@
 import 'dart:convert';
 import 'dart:math';
-
+import '../utils/trip_colors.dart';
 import 'package:flutter/material.dart';
 import 'package:mapbox_maps_flutter/mapbox_maps_flutter.dart' hide Size;
 import '../models/transit_route.dart';
@@ -78,12 +78,12 @@ class _IloiloMapState extends State<IloiloMap> {
     _markersSource,
   ];
 
-  static const List<String> _routeColors = [
-    '#800080',
-    '#1565C0',
-    '#FFFF00',
-    '#00FF00',
-  ];
+  // static const List<String> routeColors = [
+  //   '#D97706',
+  //   '#15803D',
+  //   '#6D28D9',
+  //   '#00FF00',
+  // ];
 
   // ---------------------------------------------------------------------
   // Scheduling
@@ -123,7 +123,7 @@ class _IloiloMapState extends State<IloiloMap> {
                 'type': 'Feature',
                 'properties': {
                   'route_no': widget.routes[i].routeNo,
-                  'color': _routeColors[i % _routeColors.length],
+                  'color': tripColorHex(i)
                 },
                 'geometry': {
                   'type': 'LineString',
