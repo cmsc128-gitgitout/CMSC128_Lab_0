@@ -59,11 +59,11 @@ class _SuggestedRoutesSheetState extends State<SuggestedRoutesSheet> {
     final sorted = _sortedOptions;
 
     return DraggableScrollableSheet(
-      initialChildSize: 0.58,
+      initialChildSize: 0.50,
       minChildSize: 0.32,
       maxChildSize: 0.86,
       snap: true,
-      snapSizes: const [0.58, 0.86],
+      snapSizes: const [0.50, 0.86],
       builder: (context, scrollController) {
         return Material(
           color: const Color(0xFFF7F9FC),
