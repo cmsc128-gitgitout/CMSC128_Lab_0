@@ -1,6 +1,4 @@
 import 'package:flutter/foundation.dart';
-import 'dart:core';
-import 'dart:core';
 import 'package:shared_preferences/shared_preferences.dart'; // for local storage
 
 import '../models/boarding_point.dart';
@@ -29,7 +27,7 @@ class TransitProvider extends ChangeNotifier {
   List<TransitRoute> get routes => _routes;
   String get searchQuery => _searchQuery;
 
-  
+
   static const _recentKey = 'recent_searches'; //use for reading/writing list on device 
   List<String> _recentSearches = []; //holds list
   List<String> get recentSearches => _recentSearches; 
@@ -38,13 +36,10 @@ class TransitProvider extends ChangeNotifier {
 
   List<TransitRoute> get returningRoutes => _routes.where((r) => r.direction == 'returning').toList();
 
-
   // Boarding points flagged as terminals, sorted by name.
   List<BoardingPoint> get terminals =>
       (_points.values.where((p) => p.isTerminal).toList())
         ..sort((a, b) => a.name.compareTo(b.name));
-
-
 
   void setSearchQuery(String query) {
       if (_searchQuery == query) return;
@@ -83,6 +78,7 @@ class TransitProvider extends ChangeNotifier {
   final prefs = await SharedPreferences.getInstance();
   await prefs.remove(_recentKey);
   }
+
   Future<void> removeRecentSearch(String query) async {
     _recentSearches.remove(query);
     notifyListeners();
@@ -153,7 +149,6 @@ class TransitProvider extends ChangeNotifier {
     return matches;
   }
 
-
   // filter by stops
   List<BoardingPoint> get filteredStops => searchStops(_searchQuery);
 
@@ -165,7 +160,6 @@ class TransitProvider extends ChangeNotifier {
     }
     return null;
   }
-
 
   // Loads everything from Firestore. Also used for "Try again".
   Future<void> load() async {
