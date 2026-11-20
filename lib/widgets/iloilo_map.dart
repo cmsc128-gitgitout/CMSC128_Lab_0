@@ -2,7 +2,8 @@ import 'dart:convert';
 import 'dart:math';
 
 import 'package:flutter/material.dart';
-import 'package:mapbox_maps_flutter/mapbox_maps_flutter.dart' hide Size;
+import 'package:mapbox_maps_flutter/mapbox_maps_flutter.dart';
+
 import '../models/transit_route.dart';
 
 /// A line to draw on the map. [coordinates] are [lng, lat].
@@ -28,6 +29,11 @@ class IloiloMap extends StatefulWidget {
   const IloiloMap({
     super.key,
     this.routes = const [],
+    this.showLocationPuck = false,
+  });
+
+  final List<TransitRoute> routes;
+  final bool showLocationPuck;
     this.lines = const [],
     this.highlight,
     this.markers = const [],
@@ -45,11 +51,12 @@ class IloiloMap extends StatefulWidget {
   final void Function(MapboxMap map)? onMapCreated;
 
   @override
-  State<IloiloMap> createState() => _IloiloMapState();
+  IloiloMapState createState() => IloiloMapState();
 }
 
-class _IloiloMapState extends State<IloiloMap> {
+class IloiloMapState extends State<IloiloMap> {
   MapboxMap? _map;
+  bool _mapReady = false;
   bool _styleLoaded = false;
 
   // Draws never overlap: each one is chained onto this.
@@ -85,6 +92,34 @@ class _IloiloMapState extends State<IloiloMap> {
     '#00FF00',
   ];
 
+  Future<bool> centerOnLocation({
+    required double latitude,
+    required double longitude,
+  }) async {
+    final map = _map;
+    if (map == null || !_mapReady) return false;
+
+    await map.location.updateSettings(
+      LocationComponentSettings(enabled: true, showAccuracyRing: true),
+    );
+    await map.setBounds(
+      CameraBoundsOptions(bounds: InfiniteCoordinateBounds()),
+    );
+    await map.setCamera(
+      CameraOptions(
+        center: Point(coordinates: Position(longitude, latitude)),
+        zoom: 15,
+      ),
+    );
+    return true;
+  }
+
+  ////redraw whenever transitRoute passes updated route list
+  @override
+  void didUpdateWidget(covariant IloiloMap oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (oldWidget.routes != widget.routes) {
+      _drawRoutes();
   // ---------------------------------------------------------------------
   // Scheduling
   // ---------------------------------------------------------------------
@@ -108,8 +143,45 @@ class _IloiloMapState extends State<IloiloMap> {
             oldWidget.lines != widget.lines,
       );
     }
+    if (oldWidget.showLocationPuck != widget.showLocationPuck) {
+      _updateLocationPuck();
+    }
   }
 
+  Future<void> _updateLocationPuck() async {
+    final map = _map;
+    if (map == null || !_mapReady) return;
+
+    await map.location.updateSettings(
+      LocationComponentSettings(
+        enabled: widget.showLocationPuck,
+        showAccuracyRing: widget.showLocationPuck,
+      ),
+    );
+  }
+
+  //convert transitroute obj to geojson string
+  String _routesGeoJson() => jsonEncode({
+    'type': 'FeatureCollection',
+    'features': [
+      for (int i = 0; i < widget.routes.length; i++)
+        if (widget.routes[i].path.length >= 2)
+          {
+            'type': 'Feature',
+            'properties': {
+              'route_no': widget.routes[i].routeNo,
+              'color': _routeColors[i % _routeColors.length],
+            },
+            'geometry': {
+              'type': 'LineString',
+              'coordinates': widget.routes[i].path,
+            },
+          },
+    ],
+  });
+
+  //use drawing properties and coords
+  Future<void> _drawRoutes() async {
   // ---------------------------------------------------------------------
   // GeoJSON builders
   // ---------------------------------------------------------------------
@@ -344,6 +416,8 @@ class _IloiloMapState extends State<IloiloMap> {
             maxZoom: 18,
           ),
         );
+        _mapReady = true;
+        await _updateLocationPuck();
         widget.onMapCreated?.call(map);
       },
       // Draw only after the style is ready.

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:provider/provider.dart';
 import 'firebase_options.dart';
 
@@ -20,15 +21,22 @@ void main() async {
   // Ensures Flutter is initialized before calling asynchronous setup operations.
   WidgetsFlutterBinding.ensureInitialized();
 
+  await dotenv.load(fileName: '.env');
+  final mapboxAccessToken = dotenv.env['MAPBOX_ACCESS_TOKEN']?.trim();
+  if (mapboxAccessToken == null || mapboxAccessToken.isEmpty) {
+    throw StateError(
+      'MAPBOX_ACCESS_TOKEN is missing from .env. '
+      'Copy .env.example to .env and add your Mapbox public access token.',
+    );
+  }
+
   // Initializes Firebase using the platform-specific configuration.
   await Firebase.initializeApp(
     options: DefaultFirebaseOptions.currentPlatform,
   );
 
   // Must be set before any MapWidget is created.
-  MapboxOptions.setAccessToken(
-    const String.fromEnvironment('ACCESS_TOKEN'),
-  );
+  MapboxOptions.setAccessToken(mapboxAccessToken);
 
   runApp(
     // Makes TransitProvider available to the entire widget tree.

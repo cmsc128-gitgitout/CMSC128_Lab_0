@@ -66,6 +66,31 @@ Download the Dart and Flutter packages declared by the project:
 flutter pub get
 ```
 
+### Mapbox configuration
+
+The app loads its Mapbox access token from a local `.env` file so you can run it
+with `flutter run` without passing the token in the command line.
+
+1. Copy `.env.example` to `.env` in the project root:
+
+   ```powershell
+   Copy-Item .env.example .env
+   ```
+
+   On macOS or Linux, use `cp .env.example .env`.
+2. Set `MAPBOX_ACCESS_TOKEN` in `.env` to your Mapbox public access token.
+3. Run the app normally:
+
+   ```sh
+   flutter run
+   ```
+
+`.env` is ignored by Git; keep your token there and do not commit it. The
+`.env.example` file is a template and should not contain a real token. Values
+bundled into a Flutter app are extractable, so use only a Mapbox public token
+and restrict it appropriately in your Mapbox account. Do not put private
+credentials in `.env`.
+
 ### Firebase configuration
 
 Firebase is already configured for the shared Firebase project `cmsc-128-labs`. The repository includes the FlutterFire options in `lib/firebase_options.dart`, the Android configuration in `android/app/google-services.json`, and the FlutterFire project mapping in `firebase.json`. The Android Gradle plugin is also configured to load the Google Services plugin.
