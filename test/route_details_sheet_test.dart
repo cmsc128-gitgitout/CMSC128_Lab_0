@@ -71,5 +71,26 @@ void main() {
     expect(find.text('18 min'), findsOneWidget);
     expect(find.text('Transfer at City Proper'), findsOneWidget);
     expect(find.text('240 m'), findsOneWidget);
+    expect(
+      find.byWidgetPredicate(
+        (widget) =>
+            widget is Icon &&
+            widget.icon == Icons.directions_bus_filled &&
+            widget.color == Colors.white,
+      ),
+      findsNWidgets(2),
+    );
+    expect(
+      find.byWidgetPredicate(
+        (widget) =>
+            widget is RichText &&
+            widget.text.toPlainText().startsWith('SAKAY DIRI'),
+      ),
+      findsNWidgets(2),
+    );
+
+    final title = tester.widget<Text>(find.text('Jeepney to City Proper'));
+    expect(title.style?.fontSize, 11);
+    expect(title.style?.fontWeight, FontWeight.w700);
   });
 }
