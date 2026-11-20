@@ -4,6 +4,7 @@ import 'package:provider/provider.dart';
 import '../providers/transit_provider.dart';
 import '../models/boarding_point.dart';
 import '../utils/transport_labels.dart';
+import '../utils/trip_colors.dart';
 import '../widgets/route_card.dart';
 import '../models/transit_route.dart';
 
@@ -226,7 +227,12 @@ class _NetworkScreenState extends State<NetworkScreen> {
       children: [
         _sectionTitle('CITY ROUTES'),
         for (var i = 0; i < routes.length; i++)
-          _routeCard(provider, routes[i], initiallyExpanded: i == 0),
+          _routeCard(
+            provider,
+            routes[i],
+            colorHex: tripColorHex(i),
+            initiallyExpanded: i == 0,
+          ),
       ],
     );
   }
@@ -234,17 +240,22 @@ class _NetworkScreenState extends State<NetworkScreen> {
   Widget _routeCard(
     TransitProvider provider,
     TransitRoute r, {
+    required String colorHex,
     required bool initiallyExpanded,
   }) {
-    // Map points: first stop = start, last stop = end.
-    // Fewer than 2 stops (or unknown ids) means no map.
+    // Use the full route geometry, falling back to known stops in order.
     final first = r.stopIds.length >= 2
         ? provider.stopById(r.stopIds.first)
         : null;
     final last = r.stopIds.length >= 2
         ? provider.stopById(r.stopIds.last)
         : null;
-    final hasMap = first != null && last != null;
+    final stopPath = <List<double>>[];
+    for (final stopId in r.stopIds) {
+      final stop = provider.stopById(stopId);
+      if (stop != null) stopPath.add([stop.lng, stop.lat]);
+    }
+    final routePath = r.path.length >= 2 ? r.path : stopPath;
 
     return Padding(
       padding: const EdgeInsets.only(bottom: 10),
@@ -258,10 +269,12 @@ class _NetworkScreenState extends State<NetworkScreen> {
         // Fares stay null (shows "TBD") until fare_rules arrive (sprint 2):
         // discountedFare: ..., regularFare: ...,
         dropOffs: r.stopIds.skip(1).map<String>(provider.stopName).toList(),
-        startLat: hasMap ? first.lat : null,
-        startLng: hasMap ? first.lng : null,
-        endLat: hasMap ? last.lat : null,
-        endLng: hasMap ? last.lng : null,
+        routePath: routePath,
+        routeColor: colorHex,
+        startLat: first?.lat,
+        startLng: first?.lng,
+        endLat: last?.lat,
+        endLng: last?.lng,
         onViewMap: () => _toast('TODO: show route on map'),
       ),
     );

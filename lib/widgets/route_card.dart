@@ -16,6 +16,8 @@ class RouteCard extends StatefulWidget {
     this.dropOffs = const [],
     this.onViewMap,
     this.initiallyExpanded = false,
+    this.routePath = const [],
+    this.routeColor = '#1261A6',
     this.startLat, // start point of the route (first stop)
     this.startLng,
     this.endLat, // end point of the route (last stop)
@@ -36,6 +38,8 @@ class RouteCard extends StatefulWidget {
   final double? endLng;
   final VoidCallback? onViewMap;
   final bool initiallyExpanded;
+  final List<List<double>> routePath;
+  final String routeColor;
 
   @override
   State<RouteCard> createState() => _RouteCardState();
@@ -44,12 +48,15 @@ class RouteCard extends StatefulWidget {
 class _RouteCardState extends State<RouteCard> {
   late bool _expanded = widget.initiallyExpanded;
 
-  // True only when all four coordinates were given.
+  List<List<double>> get _routeCoordinates =>
+      widget.routePath.where((point) => point.length >= 2).toList();
+
   bool get _hasMap =>
-      widget.startLat != null &&
-      widget.startLng != null &&
-      widget.endLat != null &&
-      widget.endLng != null;
+      _routeCoordinates.length >= 2 ||
+      (widget.startLat != null &&
+          widget.startLng != null &&
+          widget.endLat != null &&
+          widget.endLng != null);
 
   // "via CPU Jeep · ~35 min" (skips whichever part is empty)
   String get _subtitle => [
@@ -65,16 +72,20 @@ class _RouteCardState extends State<RouteCard> {
 
   // The map only. RouteMiniMap handles its own size and rounded corners.
   Widget _buildMap() {
-    // No coordinates: show nothing.
     if (!_hasMap) return const SizedBox.shrink();
+    final path = _routeCoordinates;
+    final start = path.length >= 2 ? path.first : null;
+    final end = path.length >= 2 ? path.last : null;
 
     return Padding(
       padding: const EdgeInsets.fromLTRB(12, 10, 12, 4),
       child: RouteMiniMap(
-        startLat: widget.startLat!,
-        startLng: widget.startLng!,
-        endLat: widget.endLat!,
-        endLng: widget.endLng!,
+        startLat: start?[1] ?? widget.startLat!,
+        startLng: start?[0] ?? widget.startLng!,
+        endLat: end?[1] ?? widget.endLat!,
+        endLng: end?[0] ?? widget.endLng!,
+        routePath: path,
+        routeColor: widget.routeColor,
       ),
     );
   }
