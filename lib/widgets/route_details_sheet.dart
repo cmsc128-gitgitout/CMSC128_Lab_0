@@ -1,23 +1,18 @@
 import 'package:flutter/material.dart';
 
-import '../models/boarding_point.dart';
 import '../models/trip_option.dart';
+
+const _blue = Color(0xFF1261A6);
 
 class RouteDetailsSheet extends StatelessWidget {
   const RouteDetailsSheet({
     super.key,
     required this.option,
-    required this.origin,
-    required this.destination,
     required this.onStart,
   });
 
   final TripOption option;
-  final BoardingPoint origin;
-  final BoardingPoint destination;
   final VoidCallback onStart;
-
-  static const _blue = Color(0xFF1261A6);
 
   String _peso(double value) =>
       '₱${value == value.roundToDouble() ? value.toStringAsFixed(0) : value.toStringAsFixed(2)}';
@@ -30,7 +25,7 @@ class RouteDetailsSheet extends StatelessWidget {
     ].join(' · ');
 
     return Material(
-      color: const Color(0xFFF7F9FC),
+      color: const Color(0xFFFFFFFF),
       elevation: 12,
       borderRadius: const BorderRadius.vertical(top: Radius.circular(24)),
       clipBehavior: Clip.antiAlias,
@@ -39,7 +34,7 @@ class RouteDetailsSheet extends StatelessWidget {
         child: Column(
           children: [
             Padding(
-              padding: const EdgeInsets.fromLTRB(16, 8, 16, 12),
+              padding: const EdgeInsets.fromLTRB(16, 8, 16, 10),
               child: Column(
                 children: [
                   Center(
@@ -52,7 +47,7 @@ class RouteDetailsSheet extends StatelessWidget {
                       ),
                     ),
                   ),
-                  const SizedBox(height: 14),
+                  const SizedBox(height: 8),
                   Row(
                     children: [
                       Expanded(
@@ -62,15 +57,15 @@ class RouteDetailsSheet extends StatelessWidget {
                             Text(
                               '${option.durationMinutes} min',
                               style: const TextStyle(
-                                fontSize: 20,
+                                fontSize: 17,
                                 fontWeight: FontWeight.w800,
                               ),
                             ),
-                            const SizedBox(height: 2),
+                            const SizedBox(height: 1),
                             Text(
                               summary,
                               style: const TextStyle(
-                                fontSize: 12,
+                                fontSize: 11,
                                 color: Color(0xFF475467),
                               ),
                             ),
@@ -81,44 +76,8 @@ class RouteDetailsSheet extends StatelessWidget {
                         _peso(option.fare),
                         style: const TextStyle(
                           color: _blue,
-                          fontSize: 18,
+                          fontSize: 15,
                           fontWeight: FontWeight.w800,
-                        ),
-                      ),
-                    ],
-                  ),
-                  const SizedBox(height: 12),
-                  Row(
-                    children: [
-                      Expanded(
-                        child: Text(
-                          origin.name,
-                          maxLines: 1,
-                          overflow: TextOverflow.ellipsis,
-                          style: const TextStyle(
-                            fontSize: 12,
-                            fontWeight: FontWeight.w600,
-                          ),
-                        ),
-                      ),
-                      const Padding(
-                        padding: EdgeInsets.symmetric(horizontal: 8),
-                        child: Icon(
-                          Icons.arrow_forward,
-                          size: 16,
-                          color: Color(0xFF667085),
-                        ),
-                      ),
-                      Expanded(
-                        child: Text(
-                          destination.name,
-                          maxLines: 1,
-                          overflow: TextOverflow.ellipsis,
-                          textAlign: TextAlign.end,
-                          style: const TextStyle(
-                            fontSize: 12,
-                            fontWeight: FontWeight.w600,
-                          ),
                         ),
                       ),
                     ],
@@ -126,10 +85,9 @@ class RouteDetailsSheet extends StatelessWidget {
                 ],
               ),
             ),
-            const Divider(height: 1, color: Color(0xFFE2E8EF)),
             Expanded(
               child: ListView(
-                padding: const EdgeInsets.fromLTRB(14, 12, 14, 12),
+                padding: const EdgeInsets.fromLTRB(14, 0, 14, 8),
                 children: [
                   for (var index = 0; index < option.legs.length; index++) ...[
                     if (index > 0)
@@ -144,21 +102,22 @@ class RouteDetailsSheet extends StatelessWidget {
               ),
             ),
             Padding(
-              padding: const EdgeInsets.fromLTRB(14, 8, 14, 12),
+              padding: const EdgeInsets.fromLTRB(14, 6, 14, 10),
               child: SizedBox(
                 width: double.infinity,
-                height: 44,
+                height: 38,
                 child: FilledButton(
                   onPressed: onStart,
                   style: FilledButton.styleFrom(
                     backgroundColor: _blue,
+                    padding: EdgeInsets.zero,
                     shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(8),
+                      borderRadius: BorderRadius.circular(7),
                     ),
                   ),
                   child: const Text(
                     'Start',
-                    style: TextStyle(fontWeight: FontWeight.w700),
+                    style: TextStyle(fontSize: 12, fontWeight: FontWeight.w700),
                   ),
                 ),
               ),
@@ -176,73 +135,109 @@ class _TripLegCard extends StatelessWidget {
   final TripLeg leg;
   final String fare;
 
+  String _distanceText() {
+    if (leg.distanceKm <= 0) return '';
+    final meters = leg.distanceKm * 1000;
+    return meters >= 1000
+        ? '${leg.distanceKm.toStringAsFixed(1)} km'
+        : '${meters.round()} m';
+  }
+
   @override
   Widget build(BuildContext context) {
     final mode = leg.modeName.isEmpty ? 'Transit' : leg.modeName;
+    final routeLabel = leg.routeNo.isNotEmpty ? leg.routeNo : leg.routeName;
+    final distance = _distanceText();
 
     return Container(
-      margin: const EdgeInsets.only(bottom: 8),
-      padding: const EdgeInsets.all(10),
+      margin: const EdgeInsets.only(bottom: 6),
+      padding: const EdgeInsets.fromLTRB(9, 8, 9, 7),
       decoration: BoxDecoration(
         color: const Color(0xFFEEF3F8),
-        borderRadius: BorderRadius.circular(10),
+        borderRadius: BorderRadius.circular(9),
       ),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Container(
-            width: 34,
-            height: 34,
-            decoration: BoxDecoration(
-              color: Colors.white,
-              borderRadius: BorderRadius.circular(9),
+            width: 30,
+            height: 30,
+            decoration: const BoxDecoration(
+              color: Color(0xFFD9E8FA),
+              shape: BoxShape.circle,
             ),
             child: const Icon(
               Icons.directions_bus_filled,
-              size: 19,
-              color: Color(0xFF1261A6),
+              size: 17,
+              color: _blue,
             ),
           ),
-          const SizedBox(width: 10),
+          const SizedBox(width: 9),
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(
-                  '$mode to ${leg.to.name}',
-                  style: const TextStyle(
-                    fontSize: 13,
-                    fontWeight: FontWeight.w700,
-                  ),
+                Row(
+                  children: [
+                    Expanded(
+                      child: Text(
+                        '$mode to ${leg.to.name}',
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                        style: const TextStyle(
+                          fontSize: 12,
+                          fontWeight: FontWeight.w700,
+                        ),
+                      ),
+                    ),
+                    Text(
+                      fare,
+                      style: const TextStyle(
+                        color: _blue,
+                        fontSize: 12,
+                        fontWeight: FontWeight.w800,
+                      ),
+                    ),
+                  ],
+                ),
+                Row(
+                  children: [
+                    Expanded(
+                      child: Text(
+                        [
+                          if (routeLabel.isNotEmpty) routeLabel,
+                          '${leg.minutes} min ride',
+                        ].join(' · '),
+                        style: const TextStyle(
+                          fontSize: 10,
+                          color: Color(0xFF667085),
+                        ),
+                      ),
+                    ),
+                    if (distance.isNotEmpty)
+                      Text(
+                        distance,
+                        style: const TextStyle(
+                          fontSize: 9,
+                          color: Color(0xFF667085),
+                        ),
+                      ),
+                  ],
                 ),
                 const SizedBox(height: 3),
                 Text(
-                  '${leg.routeNo} · ${leg.minutes} min',
-                  style: const TextStyle(
-                    fontSize: 11,
-                    color: Color(0xFF475467),
-                  ),
-                ),
-                const SizedBox(height: 5),
-                Text(
-                  '${leg.from.name}  →  ${leg.to.name}',
-                  maxLines: 2,
+                  'SAKAY DIRI  ${leg.from.name}',
+                  maxLines: 1,
                   overflow: TextOverflow.ellipsis,
-                  style: const TextStyle(
-                    fontSize: 11,
-                    color: Color(0xFF344054),
-                  ),
+                  style: const TextStyle(fontSize: 9, color: Color(0xFF344054)),
+                ),
+                Text(
+                  'NAOG DIRI  ${leg.to.name}',
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: const TextStyle(fontSize: 9, color: Color(0xFF344054)),
                 ),
               ],
-            ),
-          ),
-          const SizedBox(width: 8),
-          Text(
-            fare,
-            style: const TextStyle(
-              color: Color(0xFF1261A6),
-              fontSize: 13,
-              fontWeight: FontWeight.w800,
             ),
           ),
         ],
@@ -259,20 +254,20 @@ class _TransferPoint extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: const EdgeInsets.only(left: 14, bottom: 8),
+      padding: const EdgeInsets.only(left: 14, bottom: 6),
       child: Row(
         children: [
           const Icon(
             Icons.transfer_within_a_station,
-            size: 16,
+            size: 14,
             color: Color(0xFF667085),
           ),
-          const SizedBox(width: 6),
+          const SizedBox(width: 5),
           Expanded(
             child: Text(
               'Transfer at $name',
               style: const TextStyle(
-                fontSize: 11,
+                fontSize: 10,
                 color: Color(0xFF667085),
                 fontWeight: FontWeight.w600,
               ),
