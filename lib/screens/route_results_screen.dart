@@ -7,6 +7,7 @@ import '../providers/transit_provider.dart';
 import '../utils/app_theme.dart';
 import '../utils/route_finder.dart';
 import '../widgets/iloilo_map.dart';
+import '../widgets/route_details_sheet.dart';
 import '../widgets/suggested_routes_sheet.dart';
 import '../utils/trip_colors.dart';
 
@@ -136,8 +137,29 @@ class _RouteResultsScreenState extends State<RouteResultsScreen> {
                 key: ObjectKey(_options),
                 options: _options,
                 onSelected: (o) {
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(content: Text('TODO: Route details screen.')),
+                  showModalBottomSheet<void>(
+                    context: context,
+                    isScrollControlled: true,
+                    useSafeArea: true,
+                    backgroundColor: Colors.transparent,
+                    builder: (sheetContext) => FractionallySizedBox(
+                      heightFactor: 0.9,
+                      child: RouteDetailsSheet(
+                        option: o,
+                        origin: _origin,
+                        destination: _destination,
+                        onStart: () {
+                          Navigator.of(sheetContext).pop();
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            const SnackBar(
+                              content: Text(
+                                'Turn-by-turn navigation is not available yet.',
+                              ),
+                            ),
+                          );
+                        },
+                      ),
+                    ),
                   );
                 },
               ),
