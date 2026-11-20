@@ -14,7 +14,6 @@ import '../widgets/ai_assistant_button.dart';
 import '../widgets/map_buttons.dart';
 import '../widgets/iloilo_map.dart';
 import '../widgets/search_pill.dart';
-import '../widgets/suggested_routes_sheet.dart';
 import 'plan_trip_screen.dart';
 
 class ExploreScreen extends StatefulWidget {
@@ -208,18 +207,6 @@ class ExploreScreenState extends State<ExploreScreen> {
     }
   }
 
-  void _showSuggestedRoutes() {
-    showModalBottomSheet<void>(
-      context: context,
-      isScrollControlled: true,
-      isDismissible: true,
-      enableDrag: true,
-      backgroundColor: Colors.transparent,
-      barrierColor: Colors.transparent,
-      builder: (_) => const SuggestedRoutesSheet(),
-    );
-  }
-
   @override
   Widget build(BuildContext context) {
     //read list of routes then awlays sync with transitprovider updates
@@ -239,25 +226,8 @@ class ExploreScreenState extends State<ExploreScreen> {
           alignment: Alignment.bottomLeft,
           child: Padding(
             padding: const EdgeInsets.all(16),
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Material(
-                  color: const Color(0xFF1261A6),
-                  elevation: 6,
-                  shape: const CircleBorder(),
-                  child: IconButton(
-                    tooltip: 'Test suggested routes',
-                    onPressed: _showSuggestedRoutes,
-                    icon: const Icon(Icons.alt_route, color: Colors.white),
-                  ),
-                ),
-                const SizedBox(height: 12),
-                AiAssistantButton(
-                  onPressed: () => _toast(context, 'TODO: open AI assistant'),
-                ),
-              ],
+            child: AiAssistantButton(
+              onPressed: () => _toast(context, 'TODO: open AI assistant'),
             ),
           ),
         ),
